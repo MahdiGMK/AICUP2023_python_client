@@ -20,7 +20,7 @@ class Client_Enemy_Two():
         return game
 
     def initializer_turn(self):
-        for i in range(10000000) :
+        for i in range(40000000) :
             x = 1
         strategic_nodes = self.game.get_strategic_nodes()['strategic_nodes']
         score = self.game.get_strategic_nodes()['score']
