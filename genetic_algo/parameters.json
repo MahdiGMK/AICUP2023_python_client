@@ -1,4 +1,8 @@
 {
+    "version": {
+        "min": 2,
+        "max": 2
+    },
     "testParam1": {
         "min": 1,
         "max": 2

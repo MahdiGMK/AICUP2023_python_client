@@ -38,4 +38,19 @@ def generateNewGenome() :
     json.dump(data , fl)
     fl.close()
 
-generateNewGenome()
+def resetGenomes() :
+    fl = open('scores.json' , 'r')
+    scores = json.load(fl)
+    fl.close()
+    fl = open('scores{}.json'.format(scores['version']) , 'w')
+    json.dump(scores , fl)
+    fl.close()
+    
+    fl = open('parameters.json' , 'r');
+    parameters = json.load(fl)
+    fl.close()
+    
+    scores = {'version':parameters['version']['min']}
+    fl = open('scores.json' , 'w')
+    json.dump(scores , fl)
+    fl.close()
