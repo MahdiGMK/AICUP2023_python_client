@@ -19,7 +19,7 @@ class Client_AI():
         return game
 
     def initializer_turn(self):
-        for i in range(50000000) :
+        for i in range(10000000) :
             x = 1
         strategic_nodes = self.game.get_strategic_nodes()['strategic_nodes']
         score = self.game.get_strategic_nodes()['score']
