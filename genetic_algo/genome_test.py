@@ -6,13 +6,23 @@ import random
 def randHash() -> str:
     return "%016x" % random.getrandbits(64)
 
+def readScores() -> dict :
+    fl = open('scores.json' , 'r')
+    scores = json.load(fl)
+    fl.close()
+    return scores
+
+def readParameters() -> dict :
+    fl = open('parameters.json' , 'r')
+    parameters = json.load(fl)
+    fl.close()
+    return parameters
+
 def generateNewGenome() :
     id = randHash()
     
     # update scores.json
-    fl = open('scores.json' , 'r')
-    scores = json.load(fl)
-    fl.close()
+    scores = readScores()
     
     scores[id] = 0
     
@@ -22,9 +32,7 @@ def generateNewGenome() :
     
     # read parameters.json
     
-    fl = open('parameters.json' , 'r');
-    parameters = json.load(fl)
-    fl.close()
+    parameters = readParameters()
     
     # create genome{id}.json
     
@@ -37,20 +45,19 @@ def generateNewGenome() :
     fl = open("genomes/{}.json".format( id) , "w")
     json.dump(data , fl)
     fl.close()
+    
 
 def resetGenomes() :
-    fl = open('scores.json' , 'r')
-    scores = json.load(fl)
-    fl.close()
+    scores = readScores()
     fl = open('scores{}.json'.format(scores['version']) , 'w')
     json.dump(scores , fl)
     fl.close()
     
-    fl = open('parameters.json' , 'r');
-    parameters = json.load(fl)
-    fl.close()
+    parameters = readParameters()
     
     scores = {'version':parameters['version']['min']}
     fl = open('scores.json' , 'w')
     json.dump(scores , fl)
     fl.close()
+
+resetGenomes()
