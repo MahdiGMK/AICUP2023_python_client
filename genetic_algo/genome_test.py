@@ -111,4 +111,4 @@ def updateGenomes() :
         json.dump(genome , fl)
         fl.close()
 
-updateGenomes()
+# def filterGenomes(bestCut , randChance , )
