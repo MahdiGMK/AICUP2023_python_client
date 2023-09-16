@@ -182,6 +182,17 @@ def createOffsprings(numChild) :
     json.dump(scores , fl)
     fl.close()
 
+def getScore(id) -> float:
+    scores = readScores()
+    return scores[id]
+    
+def updateScore(id , newScore):
+    scores = readScores()
+    scores[id] = newScore
+    fl = open('scores.json' , 'r')
+    json.dump(scores , fl)
+    fl.close()
+
 
 # for i in range(4) :
 #     generateNewGenome()
