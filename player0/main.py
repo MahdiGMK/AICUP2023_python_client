@@ -1,10 +1,31 @@
 import random
+from player0.data import Map
 from src.components.client_game import ClientGame
 
 flag = False
-
+initialized = False
+map
 
 def initializer(game: ClientGame):
+    global initialized
+    global map
+    
+    if not initialized :
+        initialized = True
+        adj = game.get_adj()
+        n = len(adj)
+        map = Map(n)
+        for v in adj :
+            map.setAdj(int(v) , adj[v])
+        strat = game.get_strategic_nodes()
+        stratNodes = strat['strategic_nodes']
+        stratScores = strat['score']
+        for i in range(len(stratNodes)) :
+            v = stratNodes[i]
+            s = stratScores[i]
+            map.setStrategic(v , s)
+        
+    
     print(game.get_player_id())
     strategic_nodes = game.get_strategic_nodes()['strategic_nodes']
     score = game.get_strategic_nodes()['score']
