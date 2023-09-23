@@ -1,0 +1,14 @@
+{
+    "numStrat" : 0.1 ,
+    "connectivity" : 0.1 ,
+    "totalSafety" : 0.1 ,
+    "nonDropSoldier" : 0.1 ,
+    "currentPoint" : 0.1 ,
+    "nextTurnSoldier" : 0.1 ,
+    "soldiers" : 0.1 , 
+    "saftyB" : 0.1 , 
+    "saftyBata" : 0.1 , 
+    "saftyLanda" : 0.1 , 
+    "saftyMu" : 0.1
+    
+}
