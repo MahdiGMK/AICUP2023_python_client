@@ -35,20 +35,48 @@ prx.verts[13].numNorm = random.randint(1 , 50)
 
 
 
+
+
+
 gen = pd.Genome("genome.json")
 
 t = time.time()
 
-cnt = 0 
-while(cnt < 1) : 
-    hr1 = pd.HuristicFunction(map , prx , gen , 1)
-    hr2 = pd.HuristicFunction(map , prx , gen , 2)
-    hr3 = pd.HuristicFunction(map , prx , gen , 0)
-    cnt = cnt + 1
 
-print(hr1.viewDataForDbug())
-print(hr2.viewDataForDbug())
-print(hr3.viewDataForDbug())
+hr = pd.HuristicFunction(map , prx , gen , 1)
+#attack 
+
+print(hr.calculateValue() , hr.viewDataForDbug())
+hr.buildDsu()
+
+cnt = 0
+while cnt < 1000 : 
+    hr.updateVertex(random.randint(0 , map.n - 1) , pd.ProxyMap.Vert(1 , random.randint(1 , 20) , random.randint(1 , 20)))
+    hr2 = pd.HuristicFunction(map , prx , gen , 1)
+    cnt += 1
+    if abs(hr.calculateValue() - hr2.calculateValue()) > 0.0001 :
+        print("Error in " , cnt)
+        print(hr.calculateValue() , hr.viewDataForDbug())
+        print(hr2.calculateValue() , hr2.viewDataForDbug())
+        break
+    
+        
+    
+print("DONE")
+
+
+
+
+# cnt = 0 
+# while(cnt < 1000000) : 
+#     hr1 = pd.HuristicFunction(map , prx , gen , 1)
+#     hr2 = pd.HuristicFunction(map , prx , gen , 2)
+#     hr3 = pd.HuristicFunction(map , prx , gen , 0)
+#     cnt = cnt + 1
+
+# print(hr1.viewDataForDbug())
+# print(hr2.viewDataForDbug())
+# print(hr3.viewDataForDbug())
 # print(hr1.ci2)
 # hr1.buildDsu()
 # print(hr1.ci2)
