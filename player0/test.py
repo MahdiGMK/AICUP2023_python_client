@@ -15,51 +15,55 @@ for e in x :
 for i in [29, 3, 7, 4, 20, 40] : 
     map.setStrategic(i , 5)
 
-prx = pd.ProxyMap(map , 3 , [])
-print(map.adj)
-
-for i in range(13) : 
-    prx.verts[i].team = 0
-    prx.verts[i].numNorm = random.randint(1 , 50)
-for i in range(15 , 30) : 
-    prx.verts[i].team = 1
-    prx.verts[i].numNorm = random.randint(1 , 50)
-for i in range(31 , 41) : 
-    prx.verts[i].team = 2
-    prx.verts[i].numNorm = random.randint(1 , 50)
-
-prx.verts[41].team = 1
-prx.verts[41].numNorm = random.randint(1 , 50)
-prx.verts[13].team = 2
-prx.verts[13].numNorm = random.randint(1 , 50)
-
-
-
-
-
-
 gen = pd.Genome("genome.json")
 
 t = time.time()
 
+numGames = 1
+numActions  = 1000000
 
-hr = pd.HuristicFunction(map , prx , gen , 1)
-#attack 
+for cntr in range(numGames) :
 
-print(hr.calculateValue() , hr.viewDataForDbug())
-hr.buildDsu()
+    prx = pd.ProxyMap(map , 3 , [])
+    # print(map.adj)
+    for i in range(41) : 
+        prx.verts[i].team = random.randint(0 , 3)-1
+        prx.verts[i].numNorm = random.randint(1 , 50)
+        prx.verts[i].numDef = random.randint(1 , 50)
 
-cnt = 0
-while cnt < 1000 : 
-    hr.updateVertex(random.randint(0 , map.n - 1) , pd.ProxyMap.Vert(1 , random.randint(1 , 20) , random.randint(1 , 20)))
-    hr2 = pd.HuristicFunction(map , prx , gen , 1)
-    cnt += 1
-    if abs(hr.calculateValue() - hr2.calculateValue()) > 0.0001 :
-        print("Error in " , cnt)
-        print(hr.calculateValue() , hr.viewDataForDbug())
-        print(hr2.calculateValue() , hr2.viewDataForDbug())
-        break
+
+    hr = pd.HuristicFunction(map , prx , gen , 1)
+    #attack 
+
+    # print(hr.calculateValue() , hr.viewDataForDbug())
+    hr.buildDsu()
+
+    hist = []
+
+        
+    for cnt in range(1 , numActions + 1) :
+        # if False :
+        if len(hist) > 0 and random.random() < 0.4 :
+            vert = hist.pop()
+            num = random.randint(1 , 20)
+            numDef = random.randint(1 , 20)
+            hr.updateVertex(vert , pd.ProxyMap.Vert(2 , num , numDef))
+        else :
+            vert = random.randint(0 , map.n - 1)
+            if prx.verts[vert].team != 1 :
+                hist.append(vert)
+            num = random.randint(1 , 20)
+            numDef = random.randint(1 , 20)
+            hr.updateVertex(vert , pd.ProxyMap.Vert(1 , num , numDef))
+        # hr2 = pd.HuristicFunction(map , prx , gen , 1)
+        # if abs(hr.calculateValue() - hr2.calculateValue()) > 0.01 :
+        #     print("Error in " , cnt)
+        #     print(hr.calculateValue() , hr.viewDataForDbug())
+        #     print(hr2.calculateValue() , hr2.viewDataForDbug())
+        #     break
     
+# print(hr.calculateValue() , hr.viewDataForDbug())
+# print(hr2.calculateValue() , hr2.viewDataForDbug())
         
     
 print("DONE")

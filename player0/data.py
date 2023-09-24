@@ -158,12 +158,11 @@ class HuristicFunction :
     def viewDataForDbug(self) : 
         dict = {'numStrat' : pow(3 , self.numStrat) ,'connectivity' : self.ci2 / len(self.vertices) / len(self.vertices) }
         dict['totalSafety'] = self.totalSafety
-        dict['safetyParams'] = {"danger" : self.danger , "safety" : self.safety}
-        # dict['nonDropSoldier'] = self.nonDropSoldier
-        # dict['currentPoint'] = self.currentPoint
-        # dict['nextTurnSoldier'] = self.nextTurnSoldier
-        # dict['soldiers'] = self.soldiers
-        # dict['numberOfBorder'] = self.numberOfBorders
+        # dict['safetyParams'] = {"danger" : self.danger , "safety" : self.safety}
+        dict['nonDropSoldier'] = self.nonDropSoldier
+        dict['currentPoint'] = self.currentPoint
+        dict['nextTurnSoldier'] = self.nextTurnSoldier
+        dict['soldiers'] = self.soldiers
         return dict
         
     def buildDsu(self) :
@@ -171,6 +170,7 @@ class HuristicFunction :
         self.dsuSize = [1 for i in range(self.map.n)]
         self.dsuHomie = [self.proxyMap.verts[i].team == self.playerId for i in range(self.map.n)]
         self.dsuHist = []
+        self.dsuUndoCnt = []
         self.ci2 = len(self.vertices)
         for v in self.vertices :
             for u in self.map.adj[v] :
@@ -180,10 +180,10 @@ class HuristicFunction :
         if self.dsuPar[u] == u : return u
         return self.parDsu(self.dsuPar[u])
     
-    def mergeDsu(self , v , u) : # us - someone
+    def mergeDsu(self , v , u) -> bool : # us - someone
         v = self.parDsu(v)
         u = self.parDsu(u)
-        if u == v : return
+        if u == v : return False
         if self.dsuSize[u] > self.dsuSize[v] :
             u , v = v , u
         # if self.dsuHomie[v] :   always this is true
@@ -195,6 +195,7 @@ class HuristicFunction :
         
         self.ci2 += self.dsuSize[v] * self.dsuSize[v]
         self.dsuHist.append(u)
+        return True
         
     def undoDsu(self) : 
         u = self.dsuHist.pop()
@@ -238,7 +239,7 @@ class HuristicFunction :
                 flag = 1
         
         if flag > 0:
-            print("here flag 1")
+            # print("here flag 1")
             self.dsuHomie[v] = True
             self.ci2 += 1
             self.nextTurnSoldier -= len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
@@ -249,26 +250,40 @@ class HuristicFunction :
                 self.numStrat += 1
                 self.currentPoint += 3 / self.map.verts[v].strategicPts
                 self.nextTurnSoldier += self.map.verts[v].strategicPts
+            cntr = 0
             for u in self.map.adj[v]:
                 if self.proxyMap.verts[u].team == self.playerId:
-                    self.mergeDsu(u, v)
+                    cntr += self.mergeDsu(u, v)
+            self.dsuUndoCnt.append(cntr)
             self.soldiers += data.numNorm + data.numDef
             self.currentPoint += data.numNorm / 1000 + data.numDef/1000
             
         elif flag == 0 : 
-            print("here falg 0")
+            # print("here falg 0")
             self.currentPoint -= self.soldiers/1000
             self.soldiers -= lastData.numNorm + lastData.numDef
             self.soldiers += data.numNorm + data.numDef
             self.currentPoint += self.soldiers/1000
             
         else :
-            print("here flag -1")
+            self.nextTurnSoldier-=len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+            self.currentPoint-= (lastData.numNorm + lastData.numDef)/1000 + 1
+            if self.map.verts[v].strategicPts > 0 :
+                self.numStrat -= 1
+                self.currentPoint -= 3 / self.map.verts[v].strategicPts
+                self.nextTurnSoldier -= self.map.verts[v].strategicPts
+            self.soldiers-= lastData.numNorm + lastData.numDef
+            # print("here flag -1")
+            cntr = self.dsuUndoCnt.pop()
+            while cntr > 0 :
+                self.undoDsu()
+                cntr -= 1
             self.dsuHomie[v] = False
-            self.undoDsu()
             self.ci2 -= 1
             self.vertices.pop() # guaranty v is at the end of vertices
-        
+            self.nextTurnSoldier+=len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+            
+
         #safety : 
         # self.totalSafety
         # self.safety[]    alpha * 
@@ -331,6 +346,12 @@ class HuristicFunction :
                 simulatedAttack = staticData.states[n][m] # problem?
                 self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         
+        self.map.adj[v].append(v)
+        for i in self.map.adj[v] : 
+            if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
+                self.totalSafety-= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+        self.map.adj[v].pop()
+        
         for u in self.map.adj[v] :
             removeSafety(v , u)
             removeSafety(u , v)
@@ -343,14 +364,11 @@ class HuristicFunction :
         
         self.map.adj[v].append(v)
         for i in self.map.adj[v] : 
-            if (self.proxyMap.verts[i].team==self.playerId) : 
-                if self.danger[i] > 1e-8 : 
-                    self.totalSafety-= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+            if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
                 self.danger[i] = self.powELossRemain1[i]**2 + self.safetyB*self.powELossRemain2[i]**2
                 self.safety[i] = self.sqy[i] + self.safetyBeta * self.normy[i] + self.safetyLanda * self.powy[i] 
                 self.safety[i] += self.safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
-                if self.danger[i] > 1e-8 :
-                    self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+                self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
         self.totalSafety /= self.numberOfBorders + 1
         self.map.adj[v].pop()
         
