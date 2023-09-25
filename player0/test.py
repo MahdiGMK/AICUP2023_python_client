@@ -19,15 +19,15 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = 1
-numActions  = 1000000
+numGames = int(1)
+numActions  = int(1e5)
 
 for cntr in range(numGames) :
 
     prx = pd.ProxyMap(map , 3 , [])
     # print(map.adj)
     for i in range(41) : 
-        prx.verts[i].team = random.randint(0 , 3)-1
+        prx.verts[i].team = random.randint(-1 , 2)
         prx.verts[i].numNorm = random.randint(1 , 50)
         prx.verts[i].numDef = random.randint(1 , 50)
 
@@ -43,7 +43,10 @@ for cntr in range(numGames) :
         
     for cnt in range(1 , numActions + 1) :
         # if False :
-        if len(hist) > 0 and random.random() < 0.4 :
+        rnd = random.random()
+        if(rnd < .2) :
+            hr.updatePlayer(pd.ProxyMap.Player(nonDropSoldier=random.randint(0 , 10) , doneFort=random.randint(0 , 1) > 0 , hadSuccessInAttack=random.randint(0 , 1) > 0))
+        elif len(hist) > 0 and rnd < 0.6 :
             vert = hist.pop()
             num = random.randint(1 , 20)
             numDef = random.randint(1 , 20)

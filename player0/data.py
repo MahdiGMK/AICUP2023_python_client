@@ -27,10 +27,10 @@ class ProxyMap :
             self.numNorm = numNorm
             self.numDef = numDef
     class Player :
-        def __init__(self) :
-            self.nonDropSoldier = 0
-            self.doneFort = False
-            self.hadSuccessInAttack = False
+        def __init__(self , nonDropSoldier = 0 , doneFort = False , hadSuccessInAttack = False) :
+            self.nonDropSoldier = nonDropSoldier
+            self.doneFort = doneFort
+            self.hadSuccessInAttack = hadSuccessInAttack
     def __init__(self , map : Map, numPlayers : int, actions : list) : 
         self.players = [self.Player() for i in range(numPlayers)]
         self.verts = [self.Vert(-1 , 0 , 0) for i in range(map.n)]
@@ -133,7 +133,7 @@ class HuristicFunction :
         self.safetyMu = genome.data['saftyMu']
         for i in self.vertices : 
             if (proxyMap.verts[i].team==playerId and self.cntMarzi[i] > 0) : 
-                self.danger[i] = self.powELossRemain1[i]**2 + self.safetyB*self.powELossRemain2[i]**2
+                self.danger[i] = self.powELossRemain1[i]*self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
                 self.safety[i] = self.sqy[i] +self.safetyBeta*self.normy[i] + self.safetyLanda * self.powy[i] 
                 self.safety[i] += self.safetyMu * (proxyMap.verts[i].numDef + proxyMap.verts[i].numNorm)
                 self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
@@ -295,10 +295,7 @@ class HuristicFunction :
         # self.powELossRemain2[]    sigma(u) pow2(E(loss[v] + remaining[u]))
         
         def removeSafety(v : int , u : int) :
-            if self.proxyMap.verts[v].team != self.playerId: 
-                self.sqy[v] = self.normy[v] = self.powy[v] = self.powELossRemain1[v] = self.powELossRemain2[v] = self.safety[v] = self.danger[v] = 0
-                return
-            if self.proxyMap.verts[u].team == -1 : return
+            if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return
             if self.proxyMap.verts[u].team == self.playerId :
                 self.sqy[v]-=math.sqrt(self.proxyMap.verts[u].numNorm)
                 self.normy[v] -= self.proxyMap.verts[u].numNorm
@@ -321,10 +318,7 @@ class HuristicFunction :
                 self.powELossRemain2[v] -= pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         
         def addSafety(v : int , u : int) :
-            if self.proxyMap.verts[v].team != self.playerId: 
-                self.sqy[v] = self.normy[v] = self.powy[v] = self.powELossRemain1[v] = self.powELossRemain2[v] = self.safety[v] = self.danger[v] = 0
-                return
-            if self.proxyMap.verts[u].team == -1 : return
+            if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return
             if self.proxyMap.verts[u].team == self.playerId :
                 self.sqy[v]+=math.sqrt(self.proxyMap.verts[u].numNorm)
                 self.normy[v] += self.proxyMap.verts[u].numNorm
@@ -356,7 +350,9 @@ class HuristicFunction :
             removeSafety(v , u)
             removeSafety(u , v)
             
-        self.proxyMap.verts[v] = data
+        lastData.team = data.team
+        lastData.numNorm = data.numNorm
+        lastData.numDef = data.numDef
         
         for u in self.map.adj[v] :
             addSafety(v , u)
@@ -365,7 +361,7 @@ class HuristicFunction :
         self.map.adj[v].append(v)
         for i in self.map.adj[v] : 
             if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
-                self.danger[i] = self.powELossRemain1[i]**2 + self.safetyB*self.powELossRemain2[i]**2
+                self.danger[i] = self.powELossRemain1[i] * self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
                 self.safety[i] = self.sqy[i] + self.safetyBeta * self.normy[i] + self.safetyLanda * self.powy[i] 
                 self.safety[i] += self.safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
                 self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
