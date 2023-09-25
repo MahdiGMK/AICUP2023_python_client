@@ -170,7 +170,6 @@ class HuristicFunction :
         self.dsuSize = [1 for i in range(self.map.n)]
         self.dsuHomie = [self.proxyMap.verts[i].team == self.playerId for i in range(self.map.n)]
         self.dsuHist = []
-        self.dsuUndoCnt = []
         self.ci2 = len(self.vertices)
         for v in self.vertices :
             for u in self.map.adj[v] :
@@ -180,10 +179,10 @@ class HuristicFunction :
         if self.dsuPar[u] == u : return u
         return self.parDsu(self.dsuPar[u])
     
-    def mergeDsu(self , v , u) -> bool : # us - someone
+    def mergeDsu(self , v , u) : # us - someone
         v = self.parDsu(v)
         u = self.parDsu(u)
-        if u == v : return False
+        if u == v : return
         if self.dsuSize[u] > self.dsuSize[v] :
             u , v = v , u
         # if self.dsuHomie[v] :   always this is true
@@ -195,10 +194,8 @@ class HuristicFunction :
         
         self.ci2 += self.dsuSize[v] * self.dsuSize[v]
         self.dsuHist.append(u)
-        return True
         
-    def undoDsu(self) : 
-        u = self.dsuHist.pop()
+    def undoDsu(self , u) : 
         v = self.dsuPar[u]
         
         self.ci2 -= self.dsuSize[v] * self.dsuSize[v]
@@ -250,11 +247,10 @@ class HuristicFunction :
                 self.numStrat += 1
                 self.currentPoint += 3 / self.map.verts[v].strategicPts
                 self.nextTurnSoldier += self.map.verts[v].strategicPts
-            cntr = 0
+            self.dsuHist.append(-1)
             for u in self.map.adj[v]:
                 if self.proxyMap.verts[u].team == self.playerId:
-                    cntr += self.mergeDsu(u, v)
-            self.dsuUndoCnt.append(cntr)
+                    self.mergeDsu(u, v)
             self.soldiers += data.numNorm + data.numDef
             self.currentPoint += data.numNorm / 1000 + data.numDef/1000
             
@@ -274,10 +270,10 @@ class HuristicFunction :
                 self.nextTurnSoldier -= self.map.verts[v].strategicPts
             self.soldiers-= lastData.numNorm + lastData.numDef
             # print("here flag -1")
-            cntr = self.dsuUndoCnt.pop()
-            while cntr > 0 :
-                self.undoDsu()
-                cntr -= 1
+            hst = self.dsuHist.pop()
+            while hst >= 0 :
+                self.undoDsu(hst)
+                hst = self.dsuHist.pop()
             self.dsuHomie[v] = False
             self.ci2 -= 1
             self.vertices.pop() # guaranty v is at the end of vertices
