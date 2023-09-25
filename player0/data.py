@@ -46,6 +46,13 @@ class StaticData :
         fl = open("../States.json" , "r")
         self.states = json.load(fl)
         fl.close()
+    def getState(self , n , m) -> list :
+        mx = max(n , m)
+        if mx > 300 :
+            mlt = 300 // mx
+            n *= mlt
+            m *= mlt
+        return self.states[n][m]
 staticData = StaticData()
 
 def pow2(num) : 
@@ -74,7 +81,7 @@ class HuristicFunction :
                     self.numberOfBorders+=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.states[n][m] # problem?
+                simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else :
                 self.cntMarzi[v]+=1
@@ -82,7 +89,7 @@ class HuristicFunction :
                     self.numberOfBorders+=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.states[n][m] # problem?
+                simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             if not self.seen[u] :
                 if self.proxyMap.verts[u].team == self.playerId :
@@ -302,7 +309,7 @@ class HuristicFunction :
                     self.numberOfBorders-=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.states[n][m] # problem?
+                simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain1[v] -= pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else :
                 self.cntMarzi[v]-=1
@@ -310,7 +317,7 @@ class HuristicFunction :
                     self.numberOfBorders-=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.states[n][m] # problem?
+                simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain2[v] -= pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         
         def addSafety(v : int , u : int) :
@@ -325,7 +332,7 @@ class HuristicFunction :
                     self.numberOfBorders+=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.states[n][m] # problem?
+                simulatedAttack = staticData.getState(n , m) # problem?
                 self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else :
                 self.cntMarzi[v]+=1
@@ -333,7 +340,7 @@ class HuristicFunction :
                     self.numberOfBorders+=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.states[n][m] # problem?
+                simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         
         self.map.adj[v].append(v)
