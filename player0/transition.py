@@ -10,7 +10,8 @@ class Movement:
 
 
 def attack_beam_search(HR0: data.HuristicFunction, beta: int, depth: int, id: int, turn: int):
-    risk_rate = 3
+    risk_rate = 1
+    simulate_rate = 4
     Q = [[0, [], HR0]]
     HR0.buildDsu()
     current_depth = 0
@@ -45,7 +46,7 @@ def attack_beam_search(HR0: data.HuristicFunction, beta: int, depth: int, id: in
                         hist_id_u = hr.proxyMap.verts[u].team
 
                         hr.updateVertex(v, data.ProxyMap.Vert(id, 1, hr.proxyMap.verts[v].numDef))
-                        hr.updateVertex(u, data.ProxyMap.Vert(id, st[risk_rate][0] - 1, 0))
+                        hr.updateVertex(u, data.ProxyMap.Vert(id, st[simulate_rate][0] - 1, 0))
 
                         qp.append([hr.calculateValue(), movement, i])
 
@@ -73,7 +74,7 @@ def attack_beam_search(HR0: data.HuristicFunction, beta: int, depth: int, id: in
             hist_id_u = hr.proxyMap.verts[u].team
 
             hr.updateVertex(v, data.ProxyMap.Vert(id, 1, hr.proxyMap.verts[v].numDef))
-            hr.updateVertex(u, data.ProxyMap.Vert(id, st[risk_rate][0] - 1, 0))
+            hr.updateVertex(u, data.ProxyMap.Vert(id, st[simulate_rate][0] - 1, 0))
 
             new_opt = [Q[ind][0] + 1, Q[ind][1] + [movement], copy.deepcopy(hr)]
 
