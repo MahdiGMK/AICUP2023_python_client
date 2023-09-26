@@ -54,7 +54,7 @@ def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int
                     hr.updateVertex(v, ProxyMap.Vert(playerId, 1, hr.proxyMap.verts[v].numDef))
                     hr.updateVertex(u, ProxyMap.Vert(playerId, st[risk_rate][0] - 1, 0))
                     
-                    qp.append([hr.calculateValue(), movement, i])
+                    qp.append([hr.calculateValue(), movement, idx])
                     
                     hr.updateVertex(v, ProxyMap.Vert(playerId, hist_v[0], hist_v[1]))
                     hr.updateVertex(u, ProxyMap.Vert(hist_id_u, hist_u[0], hist_u[1]))
