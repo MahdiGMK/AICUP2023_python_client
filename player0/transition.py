@@ -14,7 +14,8 @@ class Movement:
         self.move = move
 
 def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int, turn: int):
-    risk_rate = 3
+    risk_rate = 1
+    simulate_rate = 4
     Q = [[0, [], HR0]]
     HR0.buildDsu()
     current_depth = 0

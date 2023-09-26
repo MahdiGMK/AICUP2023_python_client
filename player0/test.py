@@ -29,8 +29,8 @@ for cntr in range(numGames) :
     # print(map.adj)
     for i in range(41) :
         prx.verts[i].team = random.randint(0 , 2)
-        prx.verts[i].numNorm = random.randint(1 , 1)
-        prx.verts[i].numDef = random.randint(1 , 1)
+        prx.verts[i].numNorm = random.randint(1 , 50)
+        prx.verts[i].numDef = random.randint(1 , 50)
         if (prx.verts[i].team==0) :
             prx.verts[i].numNorm = random.randint(200, 300)
 
