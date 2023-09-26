@@ -1,5 +1,4 @@
-import json
-import math
+import json , math , time
 
 class Map :
     class Vert :
@@ -70,8 +69,9 @@ staticData = StaticData()
 def pow2(num) : 
     return num * num
 
-updateTime = 0
 global mapp , genomee
+updateTime = 0
+initTime = 0
 class HuristicFunction :
     def __str__(self) :
         return f"Hval = {self.calculateValue()}"
@@ -150,9 +150,10 @@ class HuristicFunction :
     #     self.totalSafety
     #     self.vertices
         
-    def __init__(self ,  proxyMap : ProxyMap , playerId : int) :
+    def __init__(self ,  proxyMap : ProxyMap , playerId : int) : 
+        global initTime
+        initTime -= time.time()
         self.proxyMap = proxyMap
-        print("help")
         self.playerId = playerId
         #num strat
         self.vertices = []
@@ -210,7 +211,7 @@ class HuristicFunction :
         #next turn soldier : sigma pi + |ras|/4 + (succesful attack)*3
         self.nextTurnSoldier += len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
 
-        
+        initTime += time.time()
         #|soldier| 
             # self.soldiers  bala tarif shode
         
@@ -280,13 +281,12 @@ class HuristicFunction :
         
         self.nextTurnSoldier += 3 * (data.hadSuccessInAttack - self.hadSuccesfulAttack)
         self.hadSuccesfulAttack = data.hadSuccessInAttack
-        self.nonDropSoldier += data.nonDropSoldier
+        self.nonDropSoldier = data.nonDropSoldier
         
         self.proxyMap.players[self.playerId] = data
     
     def updateVertex(self , v : int , data : ProxyMap.Vert) :
         global updateTime
-        import time
         updateTime -= time.time()
         self.totalSafety *= self.numberOfBorders + 1
         lastData = self.proxyMap.verts[v]

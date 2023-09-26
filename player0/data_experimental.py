@@ -1,8 +1,9 @@
-import math
+import math , time
 from data import Map , ProxyMap , Genome
 
-global mapp , genomee , staticData , updateTime
+global mapp , genomee , staticData
 updateTime = 0
+initTime = 0
 def pow2(num) :
     return num * num
 class HuristicFunction :
@@ -10,44 +11,6 @@ class HuristicFunction :
         return f"Hval = {self.calculateValue()}"
     def __repr__(self) :
         return f"Hval = {self.calculateValue()}"
-    def dfs(self , v : int) :
-        self.seen[v] = True
-        self.vertices.append(v)
-        self.soldiers += self.proxyMap.verts[v].numNorm + self.proxyMap.verts[v].numDef
-        self.currentPoint += 1000
-        if mapp.verts[v].strategicPts > 0 :
-            self.nextTurnSoldier += mapp.verts[v].strategicPts
-            self.currentPoint += 3000 / mapp.verts[v].strategicPts
-            self.numStrat += 1
-        sz = 1
-        for u in mapp.adj[v] :
-            if self.proxyMap.verts[u].team == -1 : continue
-            
-            if  self.proxyMap.verts[u].team == self.playerId:
-                self.sqy[v]+=math.sqrt(self.proxyMap.verts[u].numNorm)
-                self.normy[v] += self.proxyMap.verts[u].numNorm
-                self.powy[v] += self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
-            elif (self.proxyMap.verts[u].team+1)%3==self.playerId:
-                self.cntMarzi[v]+=1
-                if (self.cntMarzi[v]==1) : 
-                    self.numberOfBorders+=1
-                n = self.proxyMap.verts[u].numNorm
-                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.getState(n , m)
-                self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
-            else :
-                self.cntMarzi[v]+=1
-                if (self.cntMarzi[v]==1) : 
-                    self.numberOfBorders+=1
-                n = self.proxyMap.verts[u].numNorm
-                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.getState(n , m)
-                self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
-            if not self.seen[u] :
-                if self.proxyMap.verts[u].team == self.playerId :
-                    sz += self.dfs(u)
-                    
-        return sz
     # def __init__(self , hr : HuristicFunction) :
     #     x = 0
     #     # self.vertices
@@ -84,8 +47,9 @@ class HuristicFunction :
     #     self.vertices
         
     def __init__(self , proxyMap : ProxyMap , playerId : int) :
+        global initTime
+        initTime -= time.time()
         self.proxyMap = proxyMap
-        print("help")
         self.playerId = playerId
         #num strat
         self.vertices = []
@@ -112,11 +76,38 @@ class HuristicFunction :
         self.ci2 = 0
         self.seen = [False for i in range(mapp.n)]
         for v in range(mapp.n) :
-            if not self.seen[v] :
-                if proxyMap.verts[v].team == playerId :
-                    x = self.dfs(v)
-                    self.ci2 += x * x
-
+            if self.proxyMap.verts[v].team == self.playerId:
+                self.vertices.append(v)
+                self.soldiers += self.proxyMap.verts[v].numNorm + self.proxyMap.verts[v].numDef
+                self.currentPoint += 1000
+                if mapp.verts[v].strategicPts > 0 :
+                    self.nextTurnSoldier += mapp.verts[v].strategicPts
+                    self.currentPoint += 3000 / mapp.verts[v].strategicPts
+                    self.numStrat += 1
+                sz = 1
+                for u in mapp.adj[v] :
+                    if self.proxyMap.verts[u].team == -1 : continue
+                    
+                    if  self.proxyMap.verts[u].team == self.playerId:
+                        self.sqy[v]+=math.sqrt(self.proxyMap.verts[u].numNorm)
+                        self.normy[v] += self.proxyMap.verts[u].numNorm
+                        self.powy[v] += self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
+                    elif (self.proxyMap.verts[u].team+1)%3==self.playerId:
+                        self.cntMarzi[v]+=1
+                        if (self.cntMarzi[v]==1) : 
+                            self.numberOfBorders+=1
+                        n = self.proxyMap.verts[u].numNorm
+                        m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                        simulatedAttack = staticData.getState(n , m)
+                        self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
+                    else :
+                        self.cntMarzi[v]+=1
+                        if (self.cntMarzi[v]==1) : 
+                            self.numberOfBorders+=1
+                        n = self.proxyMap.verts[u].numNorm
+                        m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                        simulatedAttack = staticData.getState(n , m)
+                        self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         #safety again
         
         self.safetyB = genomee.data['saftyB']
@@ -143,7 +134,7 @@ class HuristicFunction :
         #next turn soldier : sigma pi + |ras|/4 + (succesful attack)*3
         self.nextTurnSoldier += len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
 
-        
+        initTime += time.time()
         #|soldier| 
             # self.soldiers  bala tarif shode
         
@@ -213,13 +204,12 @@ class HuristicFunction :
         
         self.nextTurnSoldier += 3 * (data.hadSuccessInAttack - self.hadSuccesfulAttack)
         self.hadSuccesfulAttack = data.hadSuccessInAttack
-        self.nonDropSoldier += data.nonDropSoldier
+        self.nonDropSoldier = data.nonDropSoldier
         
         self.proxyMap.players[self.playerId] = data
     
     def updateVertex(self , v : int , data : ProxyMap.Vert) :
         global updateTime
-        import time
         updateTime -= time.time()
         self.totalSafety *= self.numberOfBorders + 1
         lastData = self.proxyMap.verts[v]

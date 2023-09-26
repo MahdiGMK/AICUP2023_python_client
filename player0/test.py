@@ -22,8 +22,8 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(1)
-numActions  = int(20000)
+numGames = int(10)
+numActions  = int(1e3)
 
 for cntr in range(numGames) :
 
@@ -42,7 +42,7 @@ for cntr in range(numGames) :
     pd_exp.staticData = pd.staticData
     hr = pd.HuristicFunction(prx , 0)
     hr.buildDsu()
-    hr.proxyMap.players[0].nonDropSoldier+=100
+    hr.updatePlayer(pd.ProxyMap.Player(100 , False , False))
     
     # tst = ts.dropSoldier(hr , 5 , 5 , 0 , 0)
     # print(tst)
@@ -58,6 +58,7 @@ for cntr in range(numGames) :
     hist = []
 
     hr_exp = pd_exp.HuristicFunction(prx_exp , 0)
+    hr_exp.updatePlayer(pd.ProxyMap.Player(100 , False , False))
     hr_exp.buildDsu()
     
     for cnt in range(1 , numActions + 1) :
@@ -84,12 +85,13 @@ for cntr in range(numGames) :
             hr.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             hr_exp.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             
-        
+        hr_main = pd.HuristicFunction(prx , 0)
         # hr2 = pd.HuristicFunction(map , prx , gen , 1)
-        if abs(hr.calculateValue() - hr_exp.calculateValue()) > 0.01 :
+        if abs(hr.calculateValue() - hr_exp.calculateValue()) > 0.01 or abs(hr.calculateValue() - hr_main.calculateValue()) > 0.01:
             print("Error in " , cnt)
             print(hr.calculateValue() , hr.viewDataForDbug())
             print(hr_exp.calculateValue() , hr_exp.viewDataForDbug())
+            print(hr_main.calculateValue() , hr_main.viewDataForDbug())
             break
     
 # print(hr.calculateValue() , hr.viewDataForDbug())
@@ -126,5 +128,7 @@ print("DONE")
 
 print(time.time()-t)
 
-
+print('init time : ' , pd.initTime)
+print('exp init time : ' , pd_exp.initTime)
 print('update time : ' , pd.updateTime)
+print('exp update time : ' , pd_exp.updateTime)
