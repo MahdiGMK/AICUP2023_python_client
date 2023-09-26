@@ -1,4 +1,6 @@
 import data as pd
+import data_experimental as pd_exp
+import copy
 import random 
 import time
 import transition as ts
@@ -33,15 +35,17 @@ for cntr in range(numGames) :
         prx.verts[i].numDef = random.randint(1 , 50)
         if (prx.verts[i].team==0) :
             prx.verts[i].numNorm = random.randint(200, 300)
+    prx_exp = copy.deepcopy(prx)
 
-    pd.genomee = gen
-    pd.mapp = map
-    hr = pd.HuristicFunction(map , prx , gen , 0)
+    pd.genomee = pd_exp.genomee = gen
+    pd.mapp = pd_exp.mapp = map
+    pd_exp.staticData = pd.staticData
+    hr = pd.HuristicFunction(prx , 0)
     hr.buildDsu()
     hr.proxyMap.players[0].nonDropSoldier+=100
     
-    tst = ts.dropSoldier(hr , 5 , 5 , 0 , 0)
-    print(tst)
+    # tst = ts.dropSoldier(hr , 5 , 5 , 0 , 0)
+    # print(tst)
     # tst = ts.attackBeamSearch([hr] , 3, 5 , 0 , 1 , 4) # Q[depth]
     # print(len(tst))
     # for at in tst : # at : Q[depth][]
@@ -50,34 +54,43 @@ for cntr in range(numGames) :
     #attack 
 
     # print(hr.calculateValue() , hr.viewDataForDbug())
-    hr.buildDsu()
 
     hist = []
 
+    hr_exp = pd_exp.HuristicFunction(prx_exp , 0)
+    hr_exp.buildDsu()
+    
+    for cnt in range(1 , numActions + 1) :
+        # if False :
+        rnd = random.random()
+        if(rnd < .2) :
+            nonDropSoldier = random.randint(0 , 10)
+            doneFort = random.randint(0 , 1) > 0
+            hadSuccessInAttack = random.randint(0 , 1) > 0
+            hr.updatePlayer(pd.ProxyMap.Player(nonDropSoldier , doneFort , hadSuccessInAttack))
+            hr_exp.updatePlayer(pd.ProxyMap.Player(nonDropSoldier , doneFort , hadSuccessInAttack))
+        elif len(hist) > 0 and rnd < 0.6 :
+            vert = hist.pop()
+            num = random.randint(1 , 20)
+            numDef = random.randint(1 , 20)
+            hr.updateVertex(vert , pd.ProxyMap.Vert(2 , num , numDef))
+            hr_exp.updateVertex(vert , pd.ProxyMap.Vert(2 , num , numDef))
+        else :
+            vert = random.randint(0 , map.n - 1)
+            if prx.verts[vert].team != 0 :
+                hist.append(vert)
+            num = random.randint(1 , 20)
+            numDef = random.randint(1 , 20)
+            hr.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
+            hr_exp.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
+            
         
-    # for cnt in range(1 , numActions + 1) :
-    #     # if False :
-    #     rnd = random.random()
-    #     if(rnd < .2) :
-    #         hr.updatePlayer(pd.ProxyMap.Player(nonDropSoldier=random.randint(0 , 10) , doneFort=random.randint(0 , 1) > 0 , hadSuccessInAttack=random.randint(0 , 1) > 0))
-    #     elif len(hist) > 0 and rnd < 0.6 :
-    #         vert = hist.pop()
-    #         num = random.randint(1 , 20)
-    #         numDef = random.randint(1 , 20)
-    #         hr.updateVertex(vert , pd.ProxyMap.Vert(2 , num , numDef))
-    #     else :
-    #         vert = random.randint(0 , map.n - 1)
-    #         if prx.verts[vert].team != 1 :
-    #             hist.append(vert)
-    #         num = random.randint(1 , 20)
-    #         numDef = random.randint(1 , 20)
-    #         hr.updateVertex(vert , pd.ProxyMap.Vert(1 , num , numDef))
         # hr2 = pd.HuristicFunction(map , prx , gen , 1)
-        # if abs(hr.calculateValue() - hr2.calculateValue()) > 0.01 :
-        #     print("Error in " , cnt)
-        #     print(hr.calculateValue() , hr.viewDataForDbug())
-        #     print(hr2.calculateValue() , hr2.viewDataForDbug())
-        #     break
+        if abs(hr.calculateValue() - hr_exp.calculateValue()) > 0.01 :
+            print("Error in " , cnt)
+            print(hr.calculateValue() , hr.viewDataForDbug())
+            print(hr_exp.calculateValue() , hr_exp.viewDataForDbug())
+            break
     
 # print(hr.calculateValue() , hr.viewDataForDbug())
 # print(hr2.calculateValue() , hr2.viewDataForDbug())

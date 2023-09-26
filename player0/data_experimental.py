@@ -1,77 +1,10 @@
-import json
 import math
+from data import Map , ProxyMap , Genome
 
-class Map :
-    class Vert :
-        def __init__(self) :
-            self.strategicPts = 0
-    def __init__(self , n) :
-        self.n = n
-        self.adj = [[] for i in range(n)]
-        self.verts = [self.Vert() for i in range(n)]
-        self.strategicVerts = []
-    
-    def setAdj(self , v , adj) :
-        self.adj[v] = adj
-        
-    def setStrategic(self , v , strategicPts) :
-        self.strategicVerts.append(v)
-        self.verts[v].strategicPts = strategicPts
-    
-
-
-class ProxyMap :
-    class Vert : 
-        def __init__(self , team , numNorm , numDef) :
-            self.team = team
-            self.numNorm = numNorm
-            self.numDef = numDef
-    class Player :
-        def __init__(self , nonDropSoldier, doneFort, hadSuccessInAttack) :
-            self.nonDropSoldier = nonDropSoldier
-            self.doneFort = doneFort
-            self.hadSuccessInAttack = hadSuccessInAttack
-    def __init__(self , map : Map, numPlayers : int, actions : list) : 
-        self.players = [self.Player(0 , False , False) for i in range(numPlayers)]
-        self.verts = [self.Vert(-1 , 0 , 0) for i in range(map.n)]
-        self.actions = actions
-        
-class Genome :
-    def __init__(self , path) :
-        fl = open(path)
-        self.data = json.load(fl)
-
-class StaticData : 
-    def __init__(self) :
-        fl = open("../States.json" , "r")
-        self.states = json.load(fl)
-        fl.close()
-    def getState(self , n , m) -> list :
-        mx = max(n , m)
-        if mx > 300 :
-
-            mlt = 300 / mx
-            n *= mlt
-            m *= mlt
-            n = int(n)
-            m = int(m)
-            x = []
-            for st in self.states[n][m] :
-                nowSt = st
-                nowSt[0]*=1/mlt
-                nowSt[1]*=1/mlt
-                nowSt[0] = int(nowSt[0])
-                nowSt[1] = int(nowSt[1])
-                x.append(nowSt)
-            return x
-        return self.states[n][m]
-staticData = StaticData()
-
-def pow2(num) : 
-    return num * num
-
+global mapp , genomee , staticData , updateTime
 updateTime = 0
-global mapp , genomee
+def pow2(num) :
+    return num * num
 class HuristicFunction :
     def __str__(self) :
         return f"Hval = {self.calculateValue()}"
@@ -150,7 +83,7 @@ class HuristicFunction :
     #     self.totalSafety
     #     self.vertices
         
-    def __init__(self ,  proxyMap : ProxyMap , playerId : int) :
+    def __init__(self , proxyMap : ProxyMap , playerId : int) :
         self.proxyMap = proxyMap
         print("help")
         self.playerId = playerId
@@ -439,4 +372,3 @@ class HuristicFunction :
         value += self.soldiers * genomee.data["soldiers"]
         return value
     
-# testing
