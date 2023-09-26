@@ -1,5 +1,6 @@
 import copy
 from enum import Enum 
+import data as pd
 from data import *
 
 
@@ -18,13 +19,12 @@ class Movement:
         return f"Movement ({self.kind} , {self.move})"
     
 def attackBeamSearch(HR0: list[HuristicFunction], beta: int, depth: int, playerId: int, turn: int , simulateRate : int):
-    risk_rate = HR0[0].genome.data["riskRate"]
+    risk_rate = pd.genomee.data["riskRate"]
     Q = [[]]
     for hr in HR0 :
         Q[0].append((0 , -1 , Movement(MoveKind.Nothing , []) , hr))
     for i in range(depth) : Q.append([])
     
-    HR0.buildDsu()
     current_depth = 0
     while current_depth < depth:
         qp = []
@@ -40,7 +40,7 @@ def attackBeamSearch(HR0: list[HuristicFunction], beta: int, depth: int, playerI
                 n = hr.proxyMap.verts[v].numNorm
                 if n <= 1 or hr.cntMarzi[v] == 0:
                     continue
-                for u in hr.map.adj[v]:
+                for u in pd.mapp.adj[v]:
                     if hr.proxyMap.verts[u].team == playerId or hr.proxyMap.verts[u].team == -1:
                         continue
                     
@@ -120,7 +120,7 @@ def dropSoldier(hr : HuristicFunction , beta : int , depth : int , playerId : in
     for v in hr.vertices :
         if hr.cntMarzi[v] == 0 : continue
         lst.append(v)
-        for u in hr.map.adj[v] :
+        for u in pd.mapp.adj[v] :
             if hr.proxyMap.verts[u].team == -1 :
                 lst.append(v)
     lst = set(lst)

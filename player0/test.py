@@ -34,9 +34,12 @@ for cntr in range(numGames) :
         if (prx.verts[i].team==0) :
             prx.verts[i].numNorm = random.randint(200, 300)
 
+    pd.genomee = gen
+    pd.mapp = map
     hr = pd.HuristicFunction(map , prx , gen , 0)
-
-    tst = ts.attackBeamSearch(hr , 3, 5 , 0 , 1 , 4) # Q[depth]
+    hr.buildDsu()
+    
+    tst = ts.attackBeamSearch([hr] , 3, 5 , 0 , 1 , 4) # Q[depth]
     # print(len(tst))
     # for at in tst : # at : Q[depth][]
     #     for m in at :
