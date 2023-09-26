@@ -7,8 +7,9 @@ from data import *
 class MoveKind(Enum) :
     Nothing = 0
     DropSoldier = 1
-    Attack = 2
-    Fort = 3
+    Move = 2
+    Attack = 3
+    Fort = 4
 class Movement:
     def __init__(self, kind: MoveKind, move: list):
         self.kind = kind
@@ -135,13 +136,13 @@ def dropSoldier(hr : HuristicFunction , beta : int , depth : int , playerId : in
     for i in range(min(beta, len(qp))):
         move = qp[i][1]
         nhr = copy.deepcopy(hr)
-        v = move[0]
+        v = move.move[0]
         nhr.updatePlayer(ProxyMap.Player(doneFort=hr.proxyMap.players[playerId]))
         nhr.updateVertex(v , ProxyMap.Vert(playerId , hr.proxyMap.verts[v].numNorm + cnt , hr.proxyMap.verts[v].numDef))
         Q.append([nhr , move])
     return Q
 
-def moveSoldierSearch(HR : list[HuristicFunction] , beta : int) : 
+def moveSoldierSearch(HR : list[HuristicFunction] , beta : int , playerId : int) :
     qp = []
     for hr in HR :    
         cnt = hr.proxyMap.players[playerId].nonDropSoldier
@@ -166,9 +167,9 @@ def moveSoldierSearch(HR : list[HuristicFunction] , beta : int) :
     for i in range(min(beta, len(qp))):
         move = qp[i][1]
         nhr = copy.deepcopy(hr)
-        v = move[0]
-        u = move[1]
-        cnt = move[2]
+        v = move.move[0]
+        u = move.move[1]
+        cnt = move.move[2]
         vNorm = hr.proxyMap.verts[v].numNorm
         vDef  = hr.proxyMap.verts[v].numNorm
         uNorm = hr.proxyMap.verts[u].numNorm
@@ -177,3 +178,4 @@ def moveSoldierSearch(HR : list[HuristicFunction] , beta : int) :
         nhr.updateVertex(u , ProxyMap.Vert(playerId , uNorm + cnt , uDef))
         Q.append([nhr , move])
     return Q
+

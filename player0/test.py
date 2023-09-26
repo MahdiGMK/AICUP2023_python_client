@@ -38,8 +38,11 @@ for cntr in range(numGames) :
     pd.mapp = map
     hr = pd.HuristicFunction(map , prx , gen , 0)
     hr.buildDsu()
+    hr.proxyMap.players[0].nonDropSoldier+=100
     
-    tst = ts.attackBeamSearch([hr] , 3, 5 , 0 , 1 , 4) # Q[depth]
+    tst = ts.dropSoldier(hr , 5 , 5 , 0 , 0)
+    print(tst)
+    # tst = ts.attackBeamSearch([hr] , 3, 5 , 0 , 1 , 4) # Q[depth]
     # print(len(tst))
     # for at in tst : # at : Q[depth][]
     #     for m in at :
