@@ -49,9 +49,21 @@ class StaticData :
     def getState(self , n , m) -> list :
         mx = max(n , m)
         if mx > 300 :
-            mlt = 300 // mx
+
+            mlt = 300 / mx
             n *= mlt
             m *= mlt
+            n = int(n)
+            m = int(m)
+            x = []
+            for st in self.states[n][m] :
+                nowSt = st
+                nowSt[0]*=1/mlt
+                nowSt[1]*=1/mlt
+                nowSt[0] = int(nowSt[0])
+                nowSt[1] = int(nowSt[1])
+                x.append(nowSt)
+            return x
         return self.states[n][m]
 staticData = StaticData()
 
