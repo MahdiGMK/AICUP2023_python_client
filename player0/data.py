@@ -57,6 +57,8 @@ staticData = StaticData()
 
 def pow2(num) : 
     return num * num
+
+updateTime = 0
 class HuristicFunction :
     def dfs(self , v : int) :
         self.seen[v] = True
@@ -233,6 +235,9 @@ class HuristicFunction :
         self.proxyMap.players[self.playerId] = data
     
     def updateVertex(self , v : int , data : ProxyMap.Vert) :
+        global updateTime
+        import time
+        updateTime -= time.time()
         self.totalSafety *= self.numberOfBorders + 1
         lastData = self.proxyMap.verts[v]
         flag = 0
@@ -370,6 +375,7 @@ class HuristicFunction :
                 self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
         self.totalSafety /= self.numberOfBorders + 1
         self.map.adj[v].pop()
+        updateTime += time.time()
         
     
     def calculateValue(self) :

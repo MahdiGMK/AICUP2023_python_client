@@ -21,7 +21,7 @@ gen = pd.Genome("genome.json")
 t = time.time()
 
 numGames = int(1)
-numActions  = int(1e5)
+numActions  = int(20000)
 
 for cntr in range(numGames) :
 
@@ -36,12 +36,13 @@ for cntr in range(numGames) :
 
     hr = pd.HuristicFunction(map , prx , gen , 0)
 
-    tst = ts.attackBeamSearch(hr , 100, 50 , 0 , 1)
-    print(len(tst))
-    for at in tst :
-        print(at[0] ,  " : ")
-        for m in at[1] :
-            print(m.kind , " : "  , m.move)
+    tst = ts.attackBeamSearch(hr , 5, 5 , 0 , 1) # Q[depth]
+    print(tst)
+    # print(len(tst))
+    # for at in tst : # at : Q[depth][]
+    #     print(at[0] ,  " : ")
+    #     for m in at[1] :
+    #         print(m.kind , " : "  , m.move)
     #attack 
 
     # print(hr.calculateValue() , hr.viewDataForDbug())
@@ -108,3 +109,5 @@ print("DONE")
 
 print(time.time()-t)
 
+
+print('update time : ' , pd.updateTime)
