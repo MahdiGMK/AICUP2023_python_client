@@ -60,6 +60,10 @@ def pow2(num) :
 
 updateTime = 0
 class HuristicFunction :
+    def __str__(self) :
+        return f"Hval = {self.calculateValue()}"
+    def __repr__(self) :
+        return f"Hval = {self.calculateValue()}"
     def dfs(self , v : int) :
         self.seen[v] = True
         self.vertices.append(v)

@@ -37,12 +37,10 @@ for cntr in range(numGames) :
     hr = pd.HuristicFunction(map , prx , gen , 0)
 
     tst = ts.attackBeamSearch(hr , 5, 5 , 0 , 1) # Q[depth]
-    print(tst)
-    # print(len(tst))
-    # for at in tst : # at : Q[depth][]
-    #     print(at[0] ,  " : ")
-    #     for m in at[1] :
-    #         print(m.kind , " : "  , m.move)
+    print(len(tst))
+    for at in tst : # at : Q[depth][]
+        for m in at :
+            print(m)
     #attack 
 
     # print(hr.calculateValue() , hr.viewDataForDbug())

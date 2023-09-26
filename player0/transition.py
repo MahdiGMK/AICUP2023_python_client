@@ -12,7 +12,11 @@ class Movement:
     def __init__(self, kind: MoveKind, move: list):
         self.kind = kind
         self.move = move
-
+    def __repr__(self) :
+        return f"{self.kind} : {self.move}"
+    def __str__(self) :
+        return f"Movement ({self.kind} , {self.move})"
+    
 def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int, turn: int):
     risk_rate = 3
     simulate_rate = 4
@@ -27,7 +31,7 @@ def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int
             q = Q[current_depth][idx]
             hr = q[3]
 
-            qp.append([hr.calculateValue(), Movement(MoveKind.Nothing, []), idx])
+            qp.append((hr.calculateValue(), Movement(MoveKind.Nothing, []), idx))
             if q[0] < current_depth :
                 continue
             
@@ -54,7 +58,7 @@ def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int
                     hr.updateVertex(v, ProxyMap.Vert(playerId, 1, hr.proxyMap.verts[v].numDef))
                     hr.updateVertex(u, ProxyMap.Vert(playerId, st[risk_rate][0] - 1, 0))
                     
-                    qp.append([hr.calculateValue(), movement, idx])
+                    qp.append((hr.calculateValue(), movement, idx))
                     
                     hr.updateVertex(v, ProxyMap.Vert(playerId, hist_v[0], hist_v[1]))
                     hr.updateVertex(u, ProxyMap.Vert(hist_id_u, hist_u[0], hist_u[1]))
@@ -86,7 +90,21 @@ def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int
             new_q.append((q[0] + 1 , ind , movement, hr))
         current_depth += 1
 
-    return Q[depth]
+    res = []
+    
+    for i in range(len(Q[depth])) :
+        path = []
+        res.append(path)
+        dep = depth
+        ind = i
+        while dep > 0 :
+            path.append(Q[dep][ind][2])
+            ind = Q[dep][ind][1]
+            dep -= 1
+        path.append(Q[depth][i][3])
+        path.reverse()
+    
+    return res
 
 
 def dropSoldierBeamSearch(Hr0 : HuristicFunction , beta : int , depth : int , playerId : int , turn : int) :
