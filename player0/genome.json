@@ -9,6 +9,6 @@
     "saftyB" : 0.1 , 
     "saftyBata" : 0.1 , 
     "saftyLanda" : 0.1 , 
-    "saftyMu" : 0.1
-    
+    "saftyMu" : 0.1 ,
+    "riskRate" : 3 
 }

@@ -17,10 +17,11 @@ class Movement:
     def __str__(self) :
         return f"Movement ({self.kind} , {self.move})"
     
-def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int, turn: int):
-    risk_rate = 3
-    simulate_rate = 4
-    Q = [[(0 , -1 , Movement(MoveKind.Nothing , []) , HR0)]]
+def attackBeamSearch(HR0: list[HuristicFunction], beta: int, depth: int, playerId: int, turn: int , simulateRate : int):
+    risk_rate = HR0[0].genome.data["riskRate"]
+    Q = [[]]
+    for hr in HR0 :
+        Q[0].append((0 , -1 , Movement(MoveKind.Nothing , []) , hr))
     for i in range(depth) : Q.append([])
     
     HR0.buildDsu()
@@ -57,9 +58,13 @@ def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int
                     
                     hr.updateVertex(v, ProxyMap.Vert(playerId, 1, hr.proxyMap.verts[v].numDef))
                     hr.updateVertex(u, ProxyMap.Vert(playerId, st[risk_rate][0] - 1, 0))
+                    if current_depth == 0 :
+                        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=hr.proxyMap.players[playerId].nonDropSoldier , doneFort=hr.proxyMap.players[playerId] , hadSuccessInAttack=True))
                     
                     qp.append((hr.calculateValue(), movement, idx))
                     
+                    if current_depth == 0 :
+                        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=hr.proxyMap.players[playerId].nonDropSoldier , doneFort=hr.proxyMap.players[playerId] , hadSuccessInAttack=False))
                     hr.updateVertex(v, ProxyMap.Vert(playerId, hist_v[0], hist_v[1]))
                     hr.updateVertex(u, ProxyMap.Vert(hist_id_u, hist_u[0], hist_u[1]))
         qp.sort(key=lambda x: x[0], reverse=True)
@@ -106,6 +111,69 @@ def attackBeamSearch(HR0: HuristicFunction, beta: int, depth: int, playerId: int
     
     return res
 
+def dropSoldier(hr : HuristicFunction , beta : int , depth : int , playerId : int , turn : int) : 
+    hr.buildDsu()
+    cnt = hr.proxyMap.players[playerId].nonDropSoldier
+    qp = []
+    hr.updatePlayer(ProxyMap.Player(nonDropSoldier=0 , doneFort=hr.proxyMap.players[playerId].doneFort))
+    lst = []
+    for v in hr.vertices :
+        if hr.cntMarzi[v] == 0 : continue
+        lst.append(v)
+        for u in hr.map.adj[v] :
+            if hr.proxyMap.verts[u].team == -1 :
+                lst.append(v)
+    lst = set(lst)
+    for v in lst : 
+        hst = (hr.proxyMap.verts[v].team , hr.proxyMap.verts[v].numNorm , hr.proxyMap.verts[v].numDef)
+        hr.updateVertex(v , ProxyMap.Vert(playerId , hr.proxyMap.verts[v].numNorm + cnt , hr.proxyMap.verts[v].numDef))
+        qp.append((hr.calculateValue() , Movement(MoveKind.DropSoldier , [v , cnt])))
+        hr.updateVertex(v , ProxyMap.Vert(hst[0] , hst[1] , hst[2]))
+    hr.updatePlayer(ProxyMap.Player(nonDropSoldier=cnt , doneFort=hr.proxyMap.players[playerId].doneFort))
+    qp.sort(key=lambda x: x[0], reverse=True)
+    Q = []
+    for i in range(min(beta, len(qp))):
+        move = qp[i][1]
+        nhr = copy.deepcopy(hr)
+        v = move[0]
+        nhr.updatePlayer(ProxyMap.Player(doneFort=hr.proxyMap.players[playerId]))
+        nhr.updateVertex(v , ProxyMap.Vert(playerId , hr.proxyMap.verts[v].numNorm + cnt , hr.proxyMap.verts[v].numDef))
+        Q.append([nhr , move])
+    return Q
 
-def dropSoldierBeamSearch(Hr0 : HuristicFunction , beta : int , depth : int , playerId : int , turn : int) :
-    x = 0 # todo
+def moveSoldierSearch(HR : list[HuristicFunction] , beta : int) : 
+    qp = []
+    for hr in HR :    
+        cnt = hr.proxyMap.players[playerId].nonDropSoldier
+        lst = []
+        for v in hr.vertices :
+            if hr.cntMarzi[v] == 0 : continue
+            lst.append(v)
+        for v in hr.vertices :
+            vNorm = hr.proxyMap.verts[v].numNorm
+            vDef  = hr.proxyMap.verts[v].numNorm
+            cnt = vNorm // 2
+            for u in lst : 
+                uNorm = hr.proxyMap.verts[u].numNorm
+                uDef  = hr.proxyMap.verts[u].numNorm
+                hr.updateVertex(v , ProxyMap.Vert(playerId , vNorm - cnt , vDef))
+                hr.updateVertex(u , ProxyMap.Vert(playerId , uNorm + cnt , uDef))
+                qp.append((hr.calculateValue() , Movement(MoveKind.Move , [v , u , cnt])))
+                hr.updateVertex(v , ProxyMap.Vert(playerId , vNorm , vDef))
+                hr.updateVertex(u , ProxyMap.Vert(playerId , uNorm , uDef))
+    qp.sort(key=lambda x: x[0], reverse=True)
+    Q = []
+    for i in range(min(beta, len(qp))):
+        move = qp[i][1]
+        nhr = copy.deepcopy(hr)
+        v = move[0]
+        u = move[1]
+        cnt = move[2]
+        vNorm = hr.proxyMap.verts[v].numNorm
+        vDef  = hr.proxyMap.verts[v].numNorm
+        uNorm = hr.proxyMap.verts[u].numNorm
+        uDef  = hr.proxyMap.verts[u].numNorm
+        nhr.updateVertex(v , ProxyMap.Vert(playerId , vNorm - cnt , vDef))
+        nhr.updateVertex(u , ProxyMap.Vert(playerId , uNorm + cnt , uDef))
+        Q.append([nhr , move])
+    return Q
