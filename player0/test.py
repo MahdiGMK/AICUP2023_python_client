@@ -1,60 +1,82 @@
+import copy
 import data as pd
-import random 
+import random
 import time
 import transition as ts
+
 map = pd.Map(42)
 
-def addadj(a , b) : 
+
+def addadj(a, b):
     map.adj[a].append(b)
     map.adj[b].append(a)
 
 
-x = [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3], [3, 4], [4, 5], [4, 6], [5, 6], [5, 8], [5, 7], [5, 14], [5, 13], [6, 7], [6, 21], [7, 21], [7, 15], [7, 14], [8, 13], [8, 11], [8, 10], [9, 8], [9, 10], [10, 12], [10, 11], [10, 36], [11, 12], [11, 13], [12, 13], [13, 14], [14, 15], [15, 21], [15, 20], [15, 18], [15, 16], [16, 18], [16, 17], [16, 41], [17, 41], [17, 19], [17, 18], [18, 19], [18, 20], [19, 20], [19, 27], [20, 21], [20, 22], [21, 22], [21, 23], [22, 23], [22, 27], [23, 24], [23, 25], [23, 26], [23, 27], [24, 25], [25, 26], [26, 27], [27, 28], [28, 29], [28, 30], [28, 31], [29, 30], [30, 31], [31, 32], [32, 33], [32, 34], [33, 34], [33, 38], [33, 39], [34, 35], [34, 38], [35, 38], [35, 37], [35, 36], [36, 37], [37, 38], [37, 40], [38, 39], [38, 40], [39, 40], [40, 41]]
-for e in x : 
-    addadj(e[0] , e[1])
+x = [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3], [3, 4], [4, 5], [4, 6], [5, 6], [5, 8], [5, 7], [5, 14], [5, 13], [6, 7],
+     [6, 21], [7, 21], [7, 15], [7, 14], [8, 13], [8, 11], [8, 10], [9, 8], [9, 10], [10, 12], [10, 11], [10, 36],
+     [11, 12], [11, 13], [12, 13], [13, 14], [14, 15], [15, 21], [15, 20], [15, 18], [15, 16], [16, 18], [16, 17],
+     [16, 41], [17, 41], [17, 19], [17, 18], [18, 19], [18, 20], [19, 20], [19, 27], [20, 21], [20, 22], [21, 22],
+     [21, 23], [22, 23], [22, 27], [23, 24], [23, 25], [23, 26], [23, 27], [24, 25], [25, 26], [26, 27], [27, 28],
+     [28, 29], [28, 30], [28, 31], [29, 30], [30, 31], [31, 32], [32, 33], [32, 34], [33, 34], [33, 38], [33, 39],
+     [34, 35], [34, 38], [35, 38], [35, 37], [35, 36], [36, 37], [37, 38], [37, 40], [38, 39], [38, 40], [39, 40],
+     [40, 41]]
+for e in x:
+    addadj(e[0], e[1])
 
-for i in [29, 3, 7, 4, 20, 40] : 
-    map.setStrategic(i , 5)
+for i in [29, 3, 7, 4, 20, 40]:
+    map.setStrategic(i, 5)
 
 gen = pd.Genome("genome.json")
 
 t = time.time()
 
 numGames = int(1)
-numActions  = int(20000)
+numActions = int(20000)
 
-for cntr in range(numGames) :
+for cntr in range(numGames):
 
-    prx = pd.ProxyMap(map , 3 , [])
+    prx = pd.ProxyMap(map, 3, [])
     # print(map.adj)
-    for i in range(41) :
-        prx.verts[i].team = random.randint(0 , 2)
-        prx.verts[i].numNorm = random.randint(1 , 50)
-        prx.verts[i].numDef = random.randint(1 , 50)
-        if (prx.verts[i].team==0) :
-            prx.verts[i].numNorm = random.randint(200, 300)
+    for i in range(41):
+        prx.verts[i].team = random.randint(0, 2)
+        prx.verts[i].numNorm = random.randint(1, 5)
+        prx.verts[i].numDef = random.randint(1, 5)
+        if (prx.verts[i].team == 0):
+            prx.verts[i].numNorm = random.randint(20, 30)
 
     pd.genomee = gen
     pd.mapp = map
-    hr = pd.HuristicFunction(map , prx , gen , 0)
+    hr = pd.HuristicFunction(map, prx, gen, 0)
     hr.buildDsu()
-    hr.proxyMap.players[0].nonDropSoldier+=100
-    
-    tst = ts.dropSoldier(hr , 5 , 5 , 0 , 0)
-    print(tst)
-    # tst = ts.attackBeamSearch([hr] , 3, 5 , 0 , 1 , 4) # Q[depth]
+    hr.proxyMap.players[0].nonDropSoldier += 100
+
+    print(pd.mapp.strategicVerts)
+
+    tst = ts.beamSearch([hr] , 10 , 0 , 0 ,0)
+    cnt = 0
+    for mp in tst :
+        print(cnt , " : " , mp)
+        cnt+=1
+
+
+    # tst = ts.dropSoldier([hr] , 5 , 5 , 0 , 0)
+    # print(tst)
+
+    # tst = ts.attackBeamSearch([(copy.deepcopy(hr), [ts.Movement(ts.MoveKind.DropSoldier, [2, 3])])], 5, 5, 0, 1,
+    #                           4)  # Q[depth]
+    # print(tst)
     # print(len(tst))
-    # for at in tst : # at : Q[depth][]
-    #     for m in at :
+    # for at in tst:  # at : Q[depth][]
+    #     for m in at:
     #         print(m)
-    #attack 
+
+    # attack
 
     # print(hr.calculateValue() , hr.viewDataForDbug())
     hr.buildDsu()
 
     hist = []
 
-        
     # for cnt in range(1 , numActions + 1) :
     #     # if False :
     #     rnd = random.random()
@@ -72,23 +94,20 @@ for cntr in range(numGames) :
     #         num = random.randint(1 , 20)
     #         numDef = random.randint(1 , 20)
     #         hr.updateVertex(vert , pd.ProxyMap.Vert(1 , num , numDef))
-        # hr2 = pd.HuristicFunction(map , prx , gen , 1)
-        # if abs(hr.calculateValue() - hr2.calculateValue()) > 0.01 :
-        #     print("Error in " , cnt)
-        #     print(hr.calculateValue() , hr.viewDataForDbug())
-        #     print(hr2.calculateValue() , hr2.viewDataForDbug())
-        #     break
-    
+    # hr2 = pd.HuristicFunction(map , prx , gen , 1)
+    # if abs(hr.calculateValue() - hr2.calculateValue()) > 0.01 :
+    #     print("Error in " , cnt)
+    #     print(hr.calculateValue() , hr.viewDataForDbug())
+    #     print(hr2.calculateValue() , hr2.viewDataForDbug())
+    #     break
+
 # print(hr.calculateValue() , hr.viewDataForDbug())
 # print(hr2.calculateValue() , hr2.viewDataForDbug())
-        
-    
+
+
 print("DONE")
 
-
-
-
-# cnt = 0 
+# cnt = 0
 # while(cnt < 1000000) : 
 #     hr1 = pd.HuristicFunction(map , prx , gen , 1)
 #     hr2 = pd.HuristicFunction(map , prx , gen , 2)
@@ -111,7 +130,6 @@ print("DONE")
 # print(hr3.ci2)
 
 
-print(time.time()-t)
+print(time.time() - t)
 
-
-print('update time : ' , pd.updateTime)
+print('update time : ', pd.updateTime)

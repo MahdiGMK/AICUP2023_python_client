@@ -1,3 +1,4 @@
+import copy
 import json
 import math
 
@@ -57,7 +58,7 @@ class StaticData :
             m = int(m)
             x = []
             for st in self.states[n][m] :
-                nowSt = st
+                nowSt = copy.deepcopy(st)
                 nowSt[0]*=1/mlt
                 nowSt[1]*=1/mlt
                 nowSt[0] = int(nowSt[0])
