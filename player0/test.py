@@ -24,7 +24,7 @@ t = time.time()
 
 numGames = int(1e2)
 numActions  = int(1e3)
-testCorrectness = True
+testCorrectness = False
 
 for cntr in range(numGames) :
 
@@ -36,7 +36,7 @@ for cntr in range(numGames) :
         prx.verts[i].numDef = random.randint(1 , 50)
         if (prx.verts[i].team==0) :
             prx.verts[i].numNorm = random.randint(200, 300)
-    prx_exp = copy.deepcopy(prx)
+    prx_exp = pd.ProxyMap.makeCopy(prx)
 
     pd.genomee = pd_exp.genomee = gen
     pd.mapp = pd_exp.mapp = map
@@ -85,7 +85,7 @@ for cntr in range(numGames) :
             hr.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             hr_exp.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             
-        hr_main = pd.HuristicFunction(prx , 0) if testCorrectness else hr
+        hr_main = pd.HuristicFunction.makeNew(prx , 0) if testCorrectness else hr
         hr_main_exp = pd_exp.HuristicFunction.makeNew(prx_exp , 0) if testCorrectness else hr
         # hr_main_exp.buildDsu()
         # hr2 = pd.HuristicFunction(map , prx , gen , 1)

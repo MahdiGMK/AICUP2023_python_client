@@ -1,4 +1,4 @@
-import math , time , copy
+import math , time
 from data import Map , ProxyMap , Genome
 
 global mapp , genomee , staticData
@@ -121,17 +121,18 @@ class HuristicFunction :
         self.totalSafety /= (self.numberOfBorders+1)
         self.buildDsu()         
         
+        self.player = proxyMap.players[playerId]
         #soldiers in hand
-        self.nonDropSoldier = proxyMap.players[playerId].nonDropSoldier
+        # self.nonDropSoldier = proxyMap.players[playerId].nonDropSoldier
         #current point :(sigma 1000ras + sigma 3000/pi + |soldier|)/1000
             # self.numberOfvertices bala tarif shode 
             # self.stratList bala tarif shode 
             # self.soldiers  bala tarif shode
-        self.hadSuccesfulAttack = proxyMap.players[playerId].hadSuccessInAttack
+        # self.hadSuccesfulAttack = proxyMap.players[playerId].hadSuccessInAttack
         self.currentPoint += self.soldiers
         self.currentPoint/=1000
         #next turn soldier : sigma pi + |ras|/4 + (succesful attack)*3
-        self.nextTurnSoldier += len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+        self.nextTurnSoldier += len(self.vertices) // 4
 
         initTime += time.time()
         return self
@@ -142,9 +143,9 @@ class HuristicFunction :
         dict = {'numStrat' : pow(3 , self.numStrat) ,'connectivity' : self.ci2 / len(self.vertices) / len(self.vertices) }
         dict['totalSafety'] = self.totalSafety
         # dict['safetyParams'] = {"danger" : self.danger , "safety" : self.safety}
-        dict['nonDropSoldier'] = self.nonDropSoldier
+        dict['nonDropSoldier'] = self.player.nonDropSoldier
         dict['currentPoint'] = self.currentPoint
-        dict['nextTurnSoldier'] = self.nextTurnSoldier
+        dict['nextTurnSoldier'] = self.nextTurnSoldier + self.player.hadSuccesfulAttack * 3
         dict['soldiers'] = self.soldiers
         return dict
         
@@ -201,12 +202,7 @@ class HuristicFunction :
     #   sz[v] -= sz[u]
     
     def updatePlayer(self , data : ProxyMap.Player) :
-        
-        self.nextTurnSoldier += 3 * (data.hadSuccessInAttack - self.hadSuccesfulAttack)
-        self.hadSuccesfulAttack = data.hadSuccessInAttack
-        self.nonDropSoldier = data.nonDropSoldier
-        
-        self.proxyMap.players[self.playerId] = data
+        self.player = self.proxyMap.players[self.playerId] = data
     
     def updateVertex(self , v : int , data : ProxyMap.Vert) :
         global updateTime
@@ -224,10 +220,10 @@ class HuristicFunction :
             # print("here flag 1")
             self.dsuHomie[v] = True
             self.ci2 += 1
-            self.nextTurnSoldier -= len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+            self.nextTurnSoldier -= len(self.vertices) // 4
             self.vertices.append(v)
             self.currentPoint += 1
-            self.nextTurnSoldier += len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+            self.nextTurnSoldier += len(self.vertices) // 4
             if v in mapp.strategicVerts:
                 self.numStrat += 1
                 self.currentPoint += 3 / mapp.verts[v].strategicPts
@@ -247,7 +243,7 @@ class HuristicFunction :
             self.currentPoint += self.soldiers/1000
             
         else :
-            self.nextTurnSoldier-=len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+            self.nextTurnSoldier -= len(self.vertices) // 4
             self.currentPoint-= (lastData.numNorm + lastData.numDef)/1000 + 1
             if mapp.verts[v].strategicPts > 0 :
                 self.numStrat -= 1
@@ -262,7 +258,7 @@ class HuristicFunction :
             self.dsuHomie[v] = False
             self.ci2 -= 1
             self.vertices.pop() # guaranty v is at the end of vertices
-            self.nextTurnSoldier+=len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
+            self.nextTurnSoldier += len(self.vertices) // 4
             
 
         
@@ -335,10 +331,6 @@ class HuristicFunction :
         mapp.adj[v].append(v)
         for i in mapp.adj[v] : 
             if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
-                # self.danger[i] = self.powELossRemain1[i] * self.powELossRemain1[i] + safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
-                # self.safety[i] = self.sqy[i] + safetyBeta * self.normy[i] + safetyLanda * self.powy[i] 
-                # self.safety[i] += safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
-                
                 safety = self.safety[i] + safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
                 danger = self.powELossRemain1[i]*self.powELossRemain1[i] + safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
                 self.totalSafety+= math.sqrt(safety/math.sqrt(danger))
@@ -352,9 +344,9 @@ class HuristicFunction :
         value += pow(3 , self.numStrat) * genomee.data['numStrat']
         value += genomee.data['connectivity'] * self.ci2 / len(self.vertices) / len(self.vertices)
         value += self.totalSafety * genomee.data['totalSafety']
-        value += self.nonDropSoldier * genomee.data['nonDropSoldier']
+        value += self.player.nonDropSoldier * genomee.data['nonDropSoldier']
         value += self.currentPoint * genomee.data["currentPoint"]
-        value += self.nextTurnSoldier * genomee.data["nextTurnSoldier"]
+        value += (self.nextTurnSoldier + 3 * self.player.hadSuccessInAttack) * genomee.data["nextTurnSoldier"]
         value += self.soldiers * genomee.data["soldiers"]
         return value
     
