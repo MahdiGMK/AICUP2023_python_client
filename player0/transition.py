@@ -24,7 +24,10 @@ class Movement:
     def __str__(self):
         return f"Movement ({self.kind} , {self.move})"
 
+
 attackBeamSearchTime = 0
+
+
 def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth: int, playerId: int, turn: int,
                      simulateRate: int):
     global attackBeamSearchTime
@@ -84,10 +87,10 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
         qp.sort(key=lambda x: x[0], reverse=True)
         L = []
         L.append(qp[0])
-        for i in range(1 , len(qp)) :
-            if abs(qp[i-1][0] - qp[i][0]) > 0.000001 :
+        for i in range(1, len(qp)):
+            if abs(qp[i - 1][0] - qp[i][0]) > 0.000001:
                 L.append(qp[i])
-        qp  = L
+        qp = L
         new_q = Q[current_depth + 1]
         for i in range(min(beta, len(qp))):
             movement = qp[i][1]
@@ -133,7 +136,10 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
     attackBeamSearchTime += time.time()
     return res
 
+
 dropSoldierTime = 0
+
+
 def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, turn: int):
     global dropSoldierTime
     dropSoldierTime -= time.time()
@@ -168,7 +174,10 @@ def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, tu
     dropSoldierTime += time.time()
     return Q
 
+
 moveSoldierTime = 0
+
+
 def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
     global moveSoldierTime
     moveSoldierTime -= time.time()
@@ -183,7 +192,7 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
             vNorm = hr.proxyMap.verts[v].numNorm
             vDef = hr.proxyMap.verts[v].numDef
             cnt = vNorm // 2
-            if cnt < 5 : continue
+            if cnt < 5: continue
             for u in lst:
                 if (u == v or hr.proxyMap.verts[u].numNorm < 2):
                     continue
@@ -213,7 +222,10 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
     moveSoldierTime += time.time()
     return Q
 
-beamSearchTime = 0 # optimize here
+
+beamSearchTime = 0  # optimize here
+
+
 def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, attackOrMove: int):
     global beamSearchTime
     beamSearchTime -= time.time()
@@ -222,7 +234,7 @@ def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, 
         dropSoldierList = dropSoldier(HR, playerId=playerId, beta=beta, turn=turn, depth=5)
         for mp in dropSoldierList:
             Q.append((mp[0], mp[1]))
-        attackList = attackBeamSearch(Q, beta , 5, playerId, turn, simulateRate=3)
+        attackList = attackBeamSearch(Q, beta, 5, playerId, turn, simulateRate=3)
         Q.clear()
         L = []
         for mp in attackList:
@@ -241,7 +253,10 @@ def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, 
     beamSearchTime += time.time()
     return Q
 
+
 calcStateTime = 0
+
+
 def calcStateValue(HR: HuristicFunction, playerId):
     global calcStateTime
     calcStateTime -= time.time()
@@ -256,6 +271,7 @@ def calcStateValue(HR: HuristicFunction, playerId):
         hValues[i] = hValues[i] * hValues[i] / total
     calcStateTime += time.time()
     return hValues
+
 
 mnmxCNT = 0
 miniMaxTime = 0
@@ -272,13 +288,13 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
     if turn > mxDepth:
         miniMaxTime += time.time()
         return calcStateValue(HR, playerId)
-    bestVal = [0 , 0 , 0]
+    bestVal = [0, 0, 0]
     Q = beamSearch([HR], beta, playerId, turn, attackOrMove)
     bestMove = 0
     ind = 0
     for nd in Q:
         value = miniMax(HuristicFunction.makeNew(nd[0].proxyMap, (playerId + 1) % 3), beta,
-                        (playerId + 1) % 3, alpha[:] , 1, turn + 1, mxDepth)
+                        (playerId + 1) % 3, alpha[:], 1, turn + 1, mxDepth)
         if bestVal[playerId] < value[playerId]:
             bestVal = value
             bestMove = ind
@@ -290,4 +306,54 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
         miniMaxTime += time.time()
         return Q[bestMove]
     miniMaxTime += time.time()
+    return bestVal
+
+
+def miniMaxPhase1(HR: HuristicFunction, beta: int, playerId: int, alpha: [], turn: int, mxDepth: int):
+    if turn > mxDepth:
+        return calcStateValue(HR, playerId)
+
+    qp = []
+    lst = set()
+    for v in data.mapp.strategicVerts:
+        histv = [HR.proxyMap.verts[v].team, HR.proxyMap.verts[v].numNorm]
+        if histv[0] != -1 and histv[0] != playerId:
+            continue
+        lst.add(v)
+
+
+    for v in HR.vertices:
+        if HR.cntMarzi[v] == 0:
+            continue
+        lst.add(v)
+        for u in data.mapp.adj[v] :
+            if HR.proxyMap.verts[u].team==-1 :
+                lst.add(u)
+
+    for v in lst :
+        histv = [HR.proxyMap.verts[v].team, HR.proxyMap.verts[v].numNorm]
+        HR.updateVertex(v, ProxyMap.Vert(playerId, histv[1] + 1, 0))
+        qp.append([HR.calculateValue(), v])
+        HR.updateVertex(v, ProxyMap.Vert(histv[0], histv[1], 0))
+
+    qp.sort(key=lambda x: x[0], reverse=True)
+    bestVal = [0 , 0 , 0]
+    bestMove = 0
+    for i in range(min(len(qp) , beta)) :
+        nd = qp[i]
+        v = nd[1]
+        hr = HR.makeNew(HR.proxyMap , playerId)
+        histv = [HR.proxyMap.verts[v].team, HR.proxyMap.verts[v].numNorm]
+        hr.updateVertex(v, ProxyMap.Vert(playerId, histv[1] + 1, 0))
+
+        value = miniMaxPhase1(hr , beta , (playerId+1)%3 , alpha[:] , turn+1 , mxDepth)
+        if bestVal[playerId] < value[playerId]:
+            bestVal = value
+            bestMove = v
+        alpha[playerId] = max(alpha[playerId], value[playerId])
+        if sum(alpha) > 1 + 0.001 :
+            break
+
+    if turn==1 :
+        return bestMove
     return bestVal
