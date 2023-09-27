@@ -45,11 +45,11 @@ class ProxyMap:
         
     @classmethod
     def makeCopy(cls , prx) :
-        val = cls()
-        val.players = [ProxyMap.Player(p.nonDropSoldier , p.doneFort , p.hadSuccessInAttack) for p in prx.players]
-        val.verts = [ProxyMap.Vert(v.team , v.numNorm , v.numDef) for v in prx.verts]
-        val.actions = copy.deepcopy(prx.actions)
-        return val
+        self = cls()
+        self.players = [ProxyMap.Player(p.nonDropSoldier , p.doneFort , p.hadSuccessInAttack) for p in prx.players]
+        self.verts = [ProxyMap.Vert(v.team , v.numNorm , v.numDef) for v in prx.verts]
+        self.actions = copy.deepcopy(prx.actions)
+        return self
         
 class Genome :
     def __init__(self , path) :

@@ -33,7 +33,7 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(1)
+numGames = int(10)
 numActions  = int(1e3)
 testCorrectness = False
 
@@ -59,8 +59,8 @@ for cntr in range(numGames):
 
 
     tst = ts.miniMax(hr , 4 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
-    print(ts.calcStateValue(tst[0] , 0))
-    print(tst[1])
+    # print(ts.calcStateValue(tst[0] , 0))
+    # print(tst[1])
 
 
     # tst = ts.beamSearch([hr] , 5  , 0 , 0 , 1)

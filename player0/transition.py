@@ -259,12 +259,15 @@ def calcStateValue(HR: HuristicFunction, playerId):
 
 mnmxCNT = 0
 miniMaxTime = 0
+
 def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrMove: int, turn: int, mxDepth: int) :
     global mnmxCNT
     global miniMaxTime
     miniMaxTime -= time.time()
     mnmxCNT += 1
-    safetyTimer = time.time()
+    global safetyTimer
+    if turn == 1 :
+        safetyTimer = time.time()
     
     if turn > mxDepth:
         miniMaxTime += time.time()
