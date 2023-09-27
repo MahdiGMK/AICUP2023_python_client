@@ -29,6 +29,7 @@ for e in x:
 for i in [29, 3, 7, 4, 20, 40]:
     map.setStrategic(i, 5)
 
+
 gen = pd.Genome("genome.json")
 
 t = time.time()
@@ -37,30 +38,34 @@ numGames = int(1)
 numActions  = int(1e3)
 testCorrectness = False
 
-for cntr in range(numGames):
-    prx = pd.ProxyMap.makeNew(map , 3 , [])
-    # print(map.adj)
-    for i in range(41):
-        prx.verts[i].team = random.randint(0, 2)
-        prx.verts[i].numNorm = random.randint(1, 50)
-
-    pd.genomee = gen
-    pd.mapp = map
-    hr = pd.HuristicFunction.makeNew(prx, 0)
-    prx.players[0].nonDropSoldier = 10
-    prx.players[1].nonDropSoldier = 10
-    prx.players[2].nonDropSoldier = 10
-
-    # tst = ts.beamSearch([copy.deepcopy(hr)] , 20 , 0 , 1 , 1)
-    # for mp in tst :
-    #     print(mp)
-
-    print(ts.calcStateValue(hr , 0))
-
-
-    tst = ts.miniMax(hr , 4 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
-    print(ts.calcStateValue(tst[0] , 0))
-    print(tst[1])
+prx = pd.ProxyMap.makeNew(map, 3, [])
+hr = pd.HuristicFunction.makeNew(prx, 0)
+print(ts.miniMaxPhase1(hr , 5 , [0 , 0 , 0] , 1  , 5))
+#
+# for cntr in range(numGames):
+#     prx = pd.ProxyMap.makeNew(map , 3 , [])
+#     # print(map.adj)
+#     for i in range(41):
+#         prx.verts[i].team = random.randint(0, 2)
+#         prx.verts[i].numNorm = random.randint(1, 50)
+#
+#     pd.genomee = gen
+#     pd.mapp = map
+#     hr = pd.HuristicFunction.makeNew(prx, 0)
+#     prx.players[0].nonDropSoldier = 10
+#     prx.players[1].nonDropSoldier = 10
+#     prx.players[2].nonDropSoldier = 10
+#
+#     # tst = ts.beamSearch([copy.deepcopy(hr)] , 20 , 0 , 1 , 1)
+#     # for mp in tst :
+#     #     print(mp)
+#
+#     print(ts.calcStateValue(hr , 0))
+#
+#
+#     tst = ts.miniMax(hr , 5, 0 , [0 , 0 , 0] , 1 , 1 , 3)
+#     print(ts.calcStateValue(tst[0] , 0))
+#     print(tst[1])
 
 
     # tst = ts.beamSearch([hr] , 5  , 0 , 0 , 1)
