@@ -203,12 +203,16 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
                 qp.append((hr.calculateValue(), Movement(MoveKind.Move, [v, u, cnt]), id))
                 hr.updateVertex(v, ProxyMap.Vert(playerId, vNorm, vDef))
                 hr.updateVertex(u, ProxyMap.Vert(playerId, uNorm, uDef))
+            qp.append((hr.calculateValue() , Movement(MoveKind.Nothing , []) , id))
         id += 1
     qp.sort(key=lambda x: x[0], reverse=True)
     Q = []
     for i in range(min(beta, len(qp))):
         move = qp[i][1]
         nhr = HuristicFunction.makeCopy(HR[qp[i][2]])
+        if move.kind==MoveKind.Nothing  :
+            Q.append([nhr , move , qp[i][2]])
+            continue
         v = move.move[0]
         u = move.move[1]
         cnt = move.move[2]

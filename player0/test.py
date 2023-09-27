@@ -41,9 +41,14 @@ testCorrectness = False
 pd.mapp = map
 pd.genomee = gen
 
+print()
+
 prx = pd.ProxyMap.makeNew(map, 3, [])
 hr = pd.HuristicFunction.makeNew(prx, 0)
-print(ts.miniMaxPhase1(hr , 5 , 0 , [0 , 0 , 0] , 1  , 5))
+
+print(pd.mapp.strategicVerts)
+
+print(ts.miniMaxPhase1(hr , 5 , 0 , [0 , 0 , 0] , 1  , 7))
 #
 # for cntr in range(numGames):
 #     prx = pd.ProxyMap.makeNew(map , 3 , [])
