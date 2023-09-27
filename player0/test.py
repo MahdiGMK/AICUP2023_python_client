@@ -6,6 +6,7 @@ import random
 import time
 import transition as ts
 
+
 map = pd.Map(42)
 
 
@@ -32,7 +33,7 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(20)
+numGames = int(1)
 numActions  = int(1e3)
 testCorrectness = False
 
@@ -41,21 +42,17 @@ for cntr in range(numGames):
     prx = pd.ProxyMap.makeNew(map , 3 , [])
     # print(map.adj)
     for i in range(41):
-        prx.verts[i].team = random.randint(0, 1)
-        prx.verts[i].numNorm = random.randint(1, 5)
-        prx.verts[i].numDef = random.randint(1, 5)
-        if (prx.verts[i].team == 0):
-            prx.verts[i].numNorm = random.randint(200, 300)
+        prx.verts[i].team = random.randint(0, 2)
+        prx.verts[i].numNorm = random.randint(1, 50)
 
     pd.genomee = gen
     pd.mapp = map
     hr = pd.HuristicFunction.makeNew(prx, 0)
-    hr.proxyMap.players[0].nonDropSoldier += 100
 
     print(ts.calcStateValue(hr , 0))
 
 
-    tst = ts.miniMax(hr , 5 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
+    tst = ts.miniMax(hr , 3 , 0 , [0 , 0 , 0] , 1 , 1 , 5)
     print(ts.calcStateValue(tst[0] , 0))
 
 
@@ -160,11 +157,4 @@ print('update time : ' , pd.updateTime)
 print('exp update time : ' , pd_exp.updateTime)
 
 
-# t = -time.time()
-# for i in range(int(1e5)) :
-#     tst = copy.deepcopy(hr)
-# print('copy time : ' , t + time.time())
-# t = -time.time()
-# for i in range(int(1e5)) :
-#     tst = pd_exp.HuristicFunction.makeCopy(hr_exp)
-# print('exp copy time : ' , t + time.time())
+
