@@ -2,6 +2,7 @@ import copy
 from enum import Enum
 import data as pd
 from data import *
+import data
 
 
 class MoveKind(Enum):
@@ -109,15 +110,16 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
     res = []
 
     for i in range(len(Q[depth])):
-        path = [0 , []]
+        path = [0, []]
         res.append(path)
-        dep = depth
-        ind = i
-        while dep > 0:
-            path[1].append(Q[dep][ind][2])
-            ind = Q[dep][ind][1]
-            dep -= 1
-        path[1] += Q[0][ind][2]
+        if (turn):
+            dep = depth
+            ind = i
+            while dep > 0:
+                path[1].append(Q[dep][ind][2])
+                ind = Q[dep][ind][1]
+                dep -= 1
+            path[1] += Q[0][ind][2]
         path[0] = Q[depth][i][3]
         path[1].reverse()
 
@@ -169,22 +171,19 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
             vDef = hr.proxyMap.verts[v].numDef
             cnt = vNorm // 2
             for u in lst:
-                if (u==v or hr.proxyMap.verts[u].numNorm <2) :
+                if (u == v or hr.proxyMap.verts[u].numNorm < 2):
                     continue
                 uNorm = hr.proxyMap.verts[u].numNorm
                 uDef = hr.proxyMap.verts[u].numDef
                 hr.updateVertex(v, ProxyMap.Vert(playerId, vNorm - cnt, vDef))
                 hr.updateVertex(u, ProxyMap.Vert(playerId, uNorm + cnt, uDef))
-                qp.append((hr.calculateValue(), Movement(MoveKind.Move, [v, u, cnt]) , id))
+                qp.append((hr.calculateValue(), Movement(MoveKind.Move, [v, u, cnt]), id))
                 hr.updateVertex(v, ProxyMap.Vert(playerId, vNorm, vDef))
                 hr.updateVertex(u, ProxyMap.Vert(playerId, uNorm, uDef))
-        id+=1
+        id += 1
     qp.sort(key=lambda x: x[0], reverse=True)
     Q = []
     for i in range(min(beta, len(qp))):
-        mp = qp[i]
-        print(mp[2], " : ")
-        print(mp[0], " , ", mp[1])
         move = qp[i][1]
         nhr = HuristicFunction.makeCopy(HR[qp[i][2]])
         v = move.move[0]
@@ -196,36 +195,67 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
         uDef = nhr.proxyMap.verts[u].numDef
         nhr.updateVertex(v, ProxyMap.Vert(playerId, vNorm - cnt, vDef))
         nhr.updateVertex(u, ProxyMap.Vert(playerId, uNorm + cnt, uDef))
-        Q.append([nhr, move , qp[i][2]])
+        Q.append([nhr, move, qp[i][2]])
     return Q
 
 
-def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int , attackOrMove : int):
+def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, attackOrMove: int):
     Q = []
-    if attackOrMove:
+    if turn > 1 or attackOrMove:
         dropSoldierList = dropSoldier(HR, playerId=playerId, beta=beta, turn=turn, depth=5)
         for mp in dropSoldierList:
             Q.append((mp[0], mp[1]))
-        attackList = attackBeamSearch(Q , beta*5 , 10 , playerId , turn , simulateRate=3)
+        attackList = attackBeamSearch(Q, beta * 5, 10, playerId, turn, simulateRate=3)
         Q.clear()
         L = []
         for mp in attackList:
             L.append(mp[0])
-        moveList = moveSoldierSearch(L , beta, playerId)
+        moveList = moveSoldierSearch(L, beta, playerId)
 
-        for mp in moveList :
-            Q.append([mp[0] , attackList[mp[2]][1]])
+        for mp in moveList:
+            Q.append((mp[0], attackList[mp[2]][1]))
         return Q
-    else :
-        moveList = moveSoldierSearch(HR , beta , playerId)
-        for mp in moveList :
-            Q.append([mp[0] , [mp[1]]])
+    else:
+        moveList = moveSoldierSearch(HR, beta, playerId)
+        for mp in moveList:
+            Q.append((mp[0], [mp[1]]))
 
     return Q
-    # id = 0
-    # List= []
-    # for mp in attackList :
-    #     moves = moveSoldierSearch(copy.deepcopy(mp[0]) , beta , playerId)
-    #
-    #     id+=1
-    # return 0
+
+
+def calcStateValue(HR: HuristicFunction, playerId):
+    hValues = [0, 0, 0]
+    hValues[playerId] = HR.calculateValue()
+    hValues[(playerId + 1) % 3] = HuristicFunction(data.mapp, HR.proxyMap, data.genomee,
+                                                   (playerId + 1) % 3).calculateValue()
+    hValues[(playerId + 2) % 3] = HuristicFunction(data.mapp, HR.proxyMap, data.genomee,
+                                                   (playerId + 2) % 3).calculateValue()
+    total = 0
+    for i in hValues:
+        total += i * i
+    for i in range(3):
+        hValues[i] = hValues[i] * hValues[i] / total
+    return hValues
+
+
+def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrMove: int, turn: int, mxDepth: int):
+    if turn > mxDepth:
+        return calcStateValue(HR, playerId)[playerId]
+    bestVal = 0
+    Q = beamSearch([copy.deepcopy(HR)], beta, playerId, turn, attackOrMove)
+    bestMove = 0
+    ind = 0
+    for nd in Q:
+        value = miniMax(HuristicFunction(data.mapp, nd[0].proxyMap, data.genomee, (playerId + 1) % 3), beta,
+                        (playerId + 1) % 3, copy.deepcopy(alpha), 1, turn + 1, mxDepth)
+        if bestVal < value:
+            bestVal = value
+            bestMove = ind
+        bestVal = max(bestVal, value)
+        alpha[playerId] = max(alpha[playerId], bestVal)
+        if sum(alpha) > 1 + 0.001:
+            break
+        ind += 1
+    if turn == 1:
+        return Q[bestMove]
+    return bestVal

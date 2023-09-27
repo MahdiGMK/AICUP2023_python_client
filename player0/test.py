@@ -40,26 +40,38 @@ for cntr in range(numGames):
 
     prx = pd.ProxyMap.makeNew(map , 3 , [])
     # print(map.adj)
-    for i in range(41) :
-        prx.verts[i].team = random.randint(0 , 2)
-        prx.verts[i].numNorm = random.randint(1 , 50)
-        prx.verts[i].numDef = random.randint(1 , 50)
-        if (prx.verts[i].team==0) :
+    for i in range(41):
+        prx.verts[i].team = random.randint(0, 1)
+        prx.verts[i].numNorm = random.randint(1, 5)
+        prx.verts[i].numDef = random.randint(1, 5)
+        if (prx.verts[i].team == 0):
             prx.verts[i].numNorm = random.randint(200, 300)
-    prx_exp = pd.ProxyMap.makeCopy(prx)
 
-    pd.genomee = pd_exp.genomee = gen
-    pd.mapp = pd_exp.mapp = map
-    pd_exp.staticData = pd.staticData
-    hr = pd.HuristicFunction.makeNew(prx , 0)
-    hr.updatePlayer(pd.ProxyMap.Player(100 , False , False))
-    
-    tst = ts.beamSearch([hr] , 10 , 0 , 0 ,0)
-    cnt = 0
-    for mp in tst :
-        print(cnt , " : " , mp)
-        cnt+=1
-    # tst = ts.dropSoldier(hr , 5 , 5 , 0 , 0)
+    pd.genomee = gen
+    pd.mapp = map
+    hr = pd.HuristicFunction(map, prx, gen, 0)
+    hr.buildDsu()
+    hr.proxyMap.players[0].nonDropSoldier += 100
+
+    print(ts.calcStateValue(hr , 0))
+
+
+    tst = ts.miniMax(hr , 5 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
+    print(ts.calcStateValue(tst[0] , 0))
+
+
+    # tst = ts.beamSearch([hr] , 5  , 0 , 0 , 1)
+    # cnt = 0
+    # for mp in tst :
+    #     print(cnt , " : " , mp)
+    #     cnt+=1
+
+
+    # tst = ts.dropSoldier([hr] , 5 , 5 , 0 , 0)
+    # print(tst)
+
+    # tst = ts.attackBeamSearch([(copy.deepcopy(hr), [ts.Movement(ts.MoveKind.DropSoldier, [2, 3])])], 5, 5, 0, 1,
+    #                           4)  # Q[depth]
     # print(tst)
     # tst = ts.attackBeamSearch([hr] , 3, 5 , 0 , 1 , 4) # Q[depth]
     # print(len(tst))
