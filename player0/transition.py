@@ -99,7 +99,7 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
             hist_u = [hr.proxyMap.verts[u].numNorm, hr.proxyMap.verts[u].numDef]
             hist_id_u = hr.proxyMap.verts[u].team
 
-            hr = copy.deepcopy(hr)
+            hr = HuristicFunction.makeCopy(hr)
             hr.updateVertex(v, ProxyMap.Vert(playerId, 1, hr.proxyMap.verts[v].numDef))
             hr.updateVertex(u, ProxyMap.Vert(playerId, st[simulateRate][0] - 1, 0))
 
@@ -127,7 +127,6 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
 def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, turn: int):
     qp = []
     for hr in HR:
-        hr.buildDsu()
         cnt = hr.proxyMap.players[playerId].nonDropSoldier
         hr.updatePlayer(ProxyMap.Player(nonDropSoldier=0, doneFort=hr.proxyMap.players[playerId].doneFort))
         lst = []
@@ -149,7 +148,7 @@ def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, tu
     Q = []
     for i in range(min(beta, len(qp))):
         move = qp[i][1]
-        nhr = copy.deepcopy(hr)
+        nhr = HuristicFunction.makeCopy(hr)
         v = move.move[0]
         nhr.updatePlayer(ProxyMap.Player(doneFort=hr.proxyMap.players[playerId]))
         nhr.updateVertex(v, ProxyMap.Vert(playerId, hr.proxyMap.verts[v].numNorm + cnt, hr.proxyMap.verts[v].numDef))
@@ -187,7 +186,7 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
         print(mp[2], " : ")
         print(mp[0], " , ", mp[1])
         move = qp[i][1]
-        nhr = copy.deepcopy(HR[qp[i][2]])
+        nhr = HuristicFunction.makeCopy(HR[qp[i][2]])
         v = move.move[0]
         u = move.move[1]
         cnt = move.move[2]
