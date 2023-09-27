@@ -28,7 +28,7 @@ testCorrectness = False
 
 for cntr in range(numGames) :
 
-    prx = pd.ProxyMap(map , 3 , [])
+    prx = pd.ProxyMap.makeNew(map , 3 , [])
     # print(map.adj)
     for i in range(41) :
         prx.verts[i].team = random.randint(0 , 2)
@@ -58,7 +58,7 @@ for cntr in range(numGames) :
 
     hist = []
 
-    hr_exp = pd_exp.HuristicFunction(prx_exp , 0)
+    hr_exp = pd_exp.HuristicFunction.makeNew(prx_exp , 0)
     hr_exp.updatePlayer(pd.ProxyMap.Player(100 , False , False))
     hr_exp.buildDsu()
     
@@ -135,13 +135,11 @@ print('update time : ' , pd.updateTime)
 print('exp update time : ' , pd_exp.updateTime)
 
 
-t = -time.time()
-for i in range(int(1e5)) :
-    tst = copy.deepcopy(hr)
-t += time.time()
-print('copy time : ' , t)
-t = -time.time()
-for i in range(int(1e5)) :
-    tst = copy.deepcopy(hr_exp)
-t += time.time()
-print('exp copy time : ' , t)
+# t = -time.time()
+# for i in range(int(1e5)) :
+#     tst = copy.deepcopy(hr)
+# print('copy time : ' , t + time.time())
+# t = -time.time()
+# for i in range(int(1e5)) :
+#     tst = pd_exp.HuristicFunction.makeCopy(hr_exp)
+# print('exp copy time : ' , t + time.time())

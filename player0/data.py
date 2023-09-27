@@ -1,4 +1,4 @@
-import json , math , time
+import json , math , time , copy
 
 class Map :
     class Vert :
@@ -30,10 +30,22 @@ class ProxyMap :
             self.nonDropSoldier = nonDropSoldier
             self.doneFort = doneFort
             self.hadSuccessInAttack = hadSuccessInAttack
-    def __init__(self , map : Map, numPlayers : int, actions : list) : 
+    @classmethod
+    def makeNew(cls , map : Map, numPlayers : int, actions : list) : 
+        self = cls()
         self.players = [self.Player(0 , False , False) for i in range(numPlayers)]
         self.verts = [self.Vert(-1 , 0 , 0) for i in range(map.n)]
         self.actions = actions
+        return self
+    def __init__(self) :
+        x = 0
+    @classmethod
+    def makeCopy(cls , prx) :
+        val = cls()
+        val.players = [ProxyMap.Player(p.nonDropSoldier , p.doneFort , p.hadSuccessInAttack) for p in prx.players]
+        val.verts = [ProxyMap.Vert(v.team , v.numNorm , v.numDef) for v in prx.verts]
+        val.actions = copy.deepcopy(prx.actions)
+        return val
         
 class Genome :
     def __init__(self , path) :
