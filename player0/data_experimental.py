@@ -58,23 +58,29 @@ class HuristicFunction :
         self.currentPoint = 0
         self.nextTurnSoldier = 0
         self.cntMarzi = [0 for i in range(mapp.n)]
+        
+        #params
+        self.safetyB = genomee.data['saftyB']
+        self.safetyBeta = genomee.data['saftyBata']
+        self.safetyLanda = genomee.data['saftyLanda']
+        self.safetyMu = genomee.data['saftyMu']
 
         #safety (sigma (Pi/Di^1/2))  /|marzi|
         # danger[v] = sigma^2 E^2(loss[v] + remaining[u]) + b * sigma^2 E^2(loss[v] + remaining[u])
         # safety[v] =  sigma y^1/2 + b * sigma y + c b * sigma y^2 + m*X 
         self.totalSafety = 0
         self.safety = [0 for i in range(mapp.n)]
-        self.danger = [0 for i in range(mapp.n)]
-        self.sqy = [0 for i in range(mapp.n)]
-        self.normy = [0 for i in range(mapp.n)]
-        self.powy = [0 for i in range(mapp.n)]
+        # self.danger = [0 for i in range(mapp.n)]
+        # self.sqy = [0 for i in range(mapp.n)]
+        # self.normy = [0 for i in range(mapp.n)]
+        # self.powy = [0 for i in range(mapp.n)]
         self.powELossRemain1 = [0 for i in range(mapp.n)]
         self.powELossRemain2 = [0 for i in range(mapp.n)]
         self.numberOfBorders = 0
 
         #sigma (Ci/n)^2
         self.ci2 = 0
-        self.seen = [False for i in range(mapp.n)]
+        # self.seen = [False for i in range(mapp.n)]
         for v in range(mapp.n) :
             if self.proxyMap.verts[v].team == self.playerId:
                 self.vertices.append(v)
@@ -85,13 +91,16 @@ class HuristicFunction :
                     self.currentPoint += 3000 / mapp.verts[v].strategicPts
                     self.numStrat += 1
                 sz = 1
+                
+                self.safety[v] = 0
+                
                 for u in mapp.adj[v] :
                     if self.proxyMap.verts[u].team == -1 : continue
                     
                     if  self.proxyMap.verts[u].team == self.playerId:
-                        self.sqy[v]+=math.sqrt(self.proxyMap.verts[u].numNorm)
-                        self.normy[v] += self.proxyMap.verts[u].numNorm
-                        self.powy[v] += self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
+                        self.safety[v] += math.sqrt(self.proxyMap.verts[u].numNorm)
+                        self.safety[v] += self.safetyBeta* self.proxyMap.verts[u].numNorm
+                        self.safety[v] += self.safetyLanda* self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
                     elif (self.proxyMap.verts[u].team+1)%3==self.playerId:
                         self.cntMarzi[v]+=1
                         if (self.cntMarzi[v]==1) : 
@@ -108,18 +117,20 @@ class HuristicFunction :
                         m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
                         simulatedAttack = staticData.getState(n , m)
                         self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
+                
+                if(self.cntMarzi[v] > 0) :
+                    danger = self.powELossRemain1[v]*self.powELossRemain1[v] + self.safetyB*self.powELossRemain2[v]*self.powELossRemain2[v]
+                    # self.safety[v] = self.sqy[v] +self.safetyBeta*self.normy[v] + self.safetyLanda * self.powy[v] 
+                    safety = self.safety[v] + self.safetyMu * (proxyMap.verts[v].numDef + proxyMap.verts[v].numNorm)
+                    self.totalSafety+= math.sqrt(safety/math.sqrt(danger))
         #safety again
         
-        self.safetyB = genomee.data['saftyB']
-        self.safetyBeta = genomee.data['saftyBata']
-        self.safetyLanda = genomee.data['saftyLanda']
-        self.safetyMu = genomee.data['saftyMu']
-        for i in self.vertices : 
-            if (proxyMap.verts[i].team==playerId and self.cntMarzi[i] > 0) : 
-                self.danger[i] = self.powELossRemain1[i]*self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
-                self.safety[i] = self.sqy[i] +self.safetyBeta*self.normy[i] + self.safetyLanda * self.powy[i] 
-                self.safety[i] += self.safetyMu * (proxyMap.verts[i].numDef + proxyMap.verts[i].numNorm)
-                self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+        # for i in self.vertices : 
+        #     if (proxyMap.verts[i].team==playerId and self.cntMarzi[i] > 0) : 
+        #         self.danger[i] = self.powELossRemain1[i]*self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
+        #         self.safety[i] = self.sqy[i] +self.safetyBeta*self.normy[i] + self.safetyLanda * self.powy[i] 
+        #         self.safety[i] += self.safetyMu * (proxyMap.verts[i].numDef + proxyMap.verts[i].numNorm)
+        #         self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
         self.totalSafety /= (self.numberOfBorders+1)
         
         #soldiers in hand
@@ -276,12 +287,12 @@ class HuristicFunction :
         # self.powELossRemain2[]    sigma(u) pow2(E(loss[v] + remaining[u]))
         
         def removeSafety(v : int , u : int) :
-            if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return
-            if self.proxyMap.verts[u].team == self.playerId :
-                self.sqy[v]-=math.sqrt(self.proxyMap.verts[u].numNorm)
-                self.normy[v] -= self.proxyMap.verts[u].numNorm
-                self.powy[v] -= self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
-            elif (self.proxyMap.verts[u].team + 1) % 3 == self.playerId :
+            if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return         
+            if  self.proxyMap.verts[u].team == self.playerId:
+                self.safety[v] -= math.sqrt(self.proxyMap.verts[u].numNorm)
+                self.safety[v] -= self.safetyBeta* self.proxyMap.verts[u].numNorm
+                self.safety[v] -= self.safetyLanda* self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
+            elif (self.proxyMap.verts[u].team+1)%3==self.playerId:
                 self.cntMarzi[v]-=1
                 if (self.cntMarzi[v]==0) : 
                     self.numberOfBorders-=1
@@ -299,18 +310,18 @@ class HuristicFunction :
                 self.powELossRemain2[v] -= pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         
         def addSafety(v : int , u : int) :
-            if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return
-            if self.proxyMap.verts[u].team == self.playerId :
-                self.sqy[v]+=math.sqrt(self.proxyMap.verts[u].numNorm)
-                self.normy[v] += self.proxyMap.verts[u].numNorm
-                self.powy[v] += self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
-            elif (self.proxyMap.verts[u].team + 1) % 3 == self.playerId :
+            if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return        
+            if  self.proxyMap.verts[u].team == self.playerId:
+                self.safety[v] += math.sqrt(self.proxyMap.verts[u].numNorm)
+                self.safety[v] += self.safetyBeta* self.proxyMap.verts[u].numNorm
+                self.safety[v] += self.safetyLanda* self.proxyMap.verts[u].numNorm * self.proxyMap.verts[u].numNorm
+            elif (self.proxyMap.verts[u].team+1)%3==self.playerId:
                 self.cntMarzi[v]+=1
                 if (self.cntMarzi[v]==1) : 
                     self.numberOfBorders+=1
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
-                simulatedAttack = staticData.getState(n , m) # problem?
+                simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else :
                 self.cntMarzi[v]+=1
@@ -324,7 +335,9 @@ class HuristicFunction :
         mapp.adj[v].append(v)
         for i in mapp.adj[v] : 
             if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
-                self.totalSafety-= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+                safety = self.safety[i] + self.safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
+                danger = self.powELossRemain1[i]*self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
+                self.totalSafety-= math.sqrt(safety/math.sqrt(danger))
         mapp.adj[v].pop()
         
         for u in mapp.adj[v] :
@@ -342,10 +355,13 @@ class HuristicFunction :
         mapp.adj[v].append(v)
         for i in mapp.adj[v] : 
             if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
-                self.danger[i] = self.powELossRemain1[i] * self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
-                self.safety[i] = self.sqy[i] + self.safetyBeta * self.normy[i] + self.safetyLanda * self.powy[i] 
-                self.safety[i] += self.safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
-                self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+                # self.danger[i] = self.powELossRemain1[i] * self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
+                # self.safety[i] = self.sqy[i] + self.safetyBeta * self.normy[i] + self.safetyLanda * self.powy[i] 
+                # self.safety[i] += self.safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
+                
+                safety = self.safety[i] + self.safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
+                danger = self.powELossRemain1[i]*self.powELossRemain1[i] + self.safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
+                self.totalSafety+= math.sqrt(safety/math.sqrt(danger))
         self.totalSafety /= self.numberOfBorders + 1
         mapp.adj[v].pop()
         updateTime += time.time()

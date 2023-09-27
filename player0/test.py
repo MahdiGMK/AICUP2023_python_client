@@ -22,8 +22,9 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(10)
-numActions  = int(1e3)
+numGames = int(1)
+numActions  = int(1e5)
+testCorrectness = False
 
 for cntr in range(numGames) :
 
@@ -85,7 +86,7 @@ for cntr in range(numGames) :
             hr.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             hr_exp.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             
-        hr_main = pd.HuristicFunction(prx , 0)
+        hr_main = pd.HuristicFunction(prx , 0) if testCorrectness else hr
         # hr2 = pd.HuristicFunction(map , prx , gen , 1)
         if abs(hr.calculateValue() - hr_exp.calculateValue()) > 0.01 or abs(hr.calculateValue() - hr_main.calculateValue()) > 0.01:
             print("Error in " , cnt)
@@ -132,3 +133,15 @@ print('init time : ' , pd.initTime)
 print('exp init time : ' , pd_exp.initTime)
 print('update time : ' , pd.updateTime)
 print('exp update time : ' , pd_exp.updateTime)
+
+
+t = -time.time()
+for i in range(int(1e5)) :
+    tst = copy.deepcopy(hr)
+t += time.time()
+print('copy time : ' , t)
+t = -time.time()
+for i in range(int(1e5)) :
+    tst = copy.deepcopy(hr_exp)
+t += time.time()
+print('exp copy time : ' , t)
