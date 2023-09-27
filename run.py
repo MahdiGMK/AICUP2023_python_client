@@ -13,6 +13,9 @@ file_path = os.path.abspath(__file__).split('run.py')[0]
 # go to the file path address
 os.chdir(file_path)
 
-
-import src.main
+def run() :
+    import src.blueprints.login as lg
+    lg.player_id = 0
+    import src.main as main
+    main.main()
 
