@@ -342,15 +342,15 @@ def miniMaxPhase1(HR: HuristicFunction, beta: int, playerId: int, alpha: [], tur
     for i in range(min(len(qp) , beta)) :
         nd = qp[i]
         v = nd[1]
-        hr = HR.makeNew(HR.proxyMap , playerId)
         histv = [HR.proxyMap.verts[v].team, HR.proxyMap.verts[v].numNorm]
-        hr.updateVertex(v, ProxyMap.Vert(playerId, histv[1] + 1, 0))
+        HR.updateVertex(v, ProxyMap.Vert(playerId, histv[1] + 1, 0))
 
-        value = miniMaxPhase1(hr , beta , (playerId+1)%3 , alpha[:] , turn+1 , mxDepth)
+        value = miniMaxPhase1(HuristicFunction.makeNew(HR , (playerId+1)%3) , beta , (playerId+1)%3 , alpha[:] , turn+1 , mxDepth)
         if bestVal[playerId] < value[playerId]:
             bestVal = value
             bestMove = v
         alpha[playerId] = max(alpha[playerId], value[playerId])
+        HR.updateVertex(v, ProxyMap.Vert(histv[0], histv[1], 0))
         if sum(alpha) > 1 + 0.001 :
             break
 
