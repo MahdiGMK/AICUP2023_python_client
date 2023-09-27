@@ -59,7 +59,7 @@ class Genome :
 
 class StaticData:
     def __init__(self):
-        fl = open("../States.json", "r")
+        fl = open("States.json", "r")
         self.states = json.load(fl)
         fl.close()
 
@@ -252,12 +252,12 @@ class HuristicFunction :
             # self.soldiers  bala tarif shode
         
     def viewDataForDbug(self) : 
-        dict = {'numStrat' : pow(3 , self.numStrat) ,'connectivity' : self.ci2 / len(self.vertices) / len(self.vertices) }
+        dict = {'numStrat' : pow(3 , self.numStrat) ,'connectivity' : self.ci2 / (len(self.vertices) + 1) / (len(self.vertices) + 1) }
         dict['totalSafety'] = self.totalSafety
         # dict['safetyParams'] = {"danger" : self.danger , "safety" : self.safety}
         dict['nonDropSoldier'] = self.player.nonDropSoldier
         dict['currentPoint'] = self.currentPoint
-        dict['nextTurnSoldier'] = self.nextTurnSoldier + self.player.hadSuccesfulAttack * 3
+        dict['nextTurnSoldier'] = self.nextTurnSoldier + self.player.hadSuccessInAttack * 3
         dict['soldiers'] = self.soldiers
         return dict
 
@@ -313,8 +313,8 @@ class HuristicFunction :
     #   par[v] = v
     #   sz[v] -= sz[u]
     
-    def updatePlayer(self , data : ProxyMap.Player) :
-        self.player = self.proxyMap.players[self.playerId] = data
+    # def updatePlayer(self , data : ProxyMap.Player) :
+    #     self.player = self.proxyMap.players[self.playerId] = data
     
     def updateVertex(self , v : int , data : ProxyMap.Vert) :
         global updateTime
