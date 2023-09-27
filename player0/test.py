@@ -38,11 +38,11 @@ for cntr in range(numGames):
     prx = pd.ProxyMap(map, 3, [])
     # print(map.adj)
     for i in range(41):
-        prx.verts[i].team = random.randint(0, 2)
+        prx.verts[i].team = random.randint(0, 1)
         prx.verts[i].numNorm = random.randint(1, 5)
         prx.verts[i].numDef = random.randint(1, 5)
         if (prx.verts[i].team == 0):
-            prx.verts[i].numNorm = random.randint(20, 30)
+            prx.verts[i].numNorm = random.randint(200, 300)
 
     pd.genomee = gen
     pd.mapp = map
@@ -50,13 +50,18 @@ for cntr in range(numGames):
     hr.buildDsu()
     hr.proxyMap.players[0].nonDropSoldier += 100
 
-    print(pd.mapp.strategicVerts)
+    print(ts.calcStateValue(hr , 0))
 
-    tst = ts.beamSearch([hr] , 10 , 0 , 0 ,0)
-    cnt = 0
-    for mp in tst :
-        print(cnt , " : " , mp)
-        cnt+=1
+
+    tst = ts.miniMax(hr , 5 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
+    print(ts.calcStateValue(tst[0] , 0))
+
+
+    # tst = ts.beamSearch([hr] , 5  , 0 , 0 , 1)
+    # cnt = 0
+    # for mp in tst :
+    #     print(cnt , " : " , mp)
+    #     cnt+=1
 
 
     # tst = ts.dropSoldier([hr] , 5 , 5 , 0 , 0)
