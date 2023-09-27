@@ -1,5 +1,6 @@
 import random
 from player0.data import Map , ProxyMap , Genome , HuristicFunction
+from player0.transition import MoveKind , Movement
 import player0.transition as ts , player0.data as pd
 from src.components.client_game import ClientGame
 
@@ -81,22 +82,73 @@ def initializer(game: ClientGame):
 
 
 def turn(game: ClientGame):
+    teams = game.get_owners()
     numNorms = game.get_number_of_troops()
     numDefs = game.get_number_of_fort_troops()
-    teams = game.get_owners()
     
     prx = ProxyMap.makeNew(pd.mapp , 3 , [])
-    prx.players[playerId].nonDropSoldier = 1
+    prx.players[playerId].nonDropSoldier = game.get_number_of_troops_to_put()['number_of_troops']
     for i in range(pd.mapp.n) :
         prx.verts[i].team = teams[str(i)]
         prx.verts[i].numNorm = numNorms[str(i)]
         prx.verts[i].numDef = numDefs[str(i)]
         # print(prx.verts[i].team , prx.verts[i].numNorm , prx.verts[i].numDef)
-    
-    hr = HuristicFunction.makeNew(prx , playerId)
+    hr = HuristicFunction.makeNew(ProxyMap.makeCopy(prx) , playerId)
     print(hr.calculateValue() , hr.viewDataForDbug())
     res = ts.miniMax(hr , 4 , playerId , [0 , 0 , 0] , 1 , 1 , 3) # optimize needed ...
     print(res[1])
+    
+    # drop
+    for mv in res[1] :
+        if mv.kind == MoveKind.DropSoldier :
+            mv : Movement
+            v = mv.move[0]
+            cnt = mv.move[1]
+            game.put_troop(v , cnt)
+            prx.verts[v].numNorm += cnt
+
+            
+    game.next_state()
+    # attack
+    for mv in res[1] :
+        if mv.kind == MoveKind.Attack :
+            mv : Movement
+            v = mv.move[0]
+            u = mv.move[1]
+            numV = prx.verts[v].numNorm
+            numU = prx.verts[u].numNorm + prx.verts[u].numDef
+            state = pd.staticData.getState(numV , numU)
+            if state[3][1] == 0 :
+                game.attack(v , u , numV / numU * pd.genomee.data['riskyFraction'] , 1)
+                teams = game.get_owners()
+                numNorms = game.get_number_of_troops()
+                numDefs = game.get_number_of_fort_troops()
+                for i in range(pd.mapp.n) :
+                    prx.verts[i].team = teams[str(i)]
+                    prx.verts[i].numNorm = numNorms[str(i)]
+                    prx.verts[i].numDef = numDefs[str(i)]
+    game.next_state()
+    # move
+    hr = HuristicFunction.makeNew(ProxyMap.makeCopy(prx) , playerId)
+    res = ts.miniMax(hr , 4 , playerId , [0 , 0 , 0] , 2 , 1 , 2)
+    for mv in res[1] :
+        if mv.kind == MoveKind.Move :
+            mv : Movement
+            v = mv.move[0]
+            u = mv.move[1]
+            cnt = mv.move[2]
+            game.move_troop(v , u , cnt)
+            prx.verts[v].numNorm -= cnt
+            prx.verts[u].numNorm += cnt
+    game.next_state()
+    # fort  TODO
+    # for mv in res[1] :
+    #     if mv.kind == MoveKind.Fort :
+    #         mv : Movement
+    
+    # done
+    
+    
     # global flag
     # print(game.get_number_of_troops_to_put())
     # owner = game.get_owners()

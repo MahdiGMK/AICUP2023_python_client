@@ -452,6 +452,8 @@ class HuristicFunction :
 
     def calculateValue(self):
         value = 0
+        if (self.numStrat > 3) : 
+            value+=1000000
         value += pow(3, self.numStrat) * genomee.data['numStrat']
         value += genomee.data['connectivity'] * self.ci2 / (len(self.vertices) * len(self.vertices) + 1)
         value += self.totalSafety * genomee.data['totalSafety']

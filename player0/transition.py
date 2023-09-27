@@ -237,7 +237,7 @@ def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, 
         dropSoldierList = dropSoldier(HR, playerId=playerId, beta=beta, turn=turn, depth=5)
         for mp in dropSoldierList:
             Q.append((mp[0], mp[1]))
-        attackList = attackBeamSearch(Q, beta, 5, playerId, turn, simulateRate=3)
+        attackList = attackBeamSearch(Q, beta*2, 7, playerId, turn, simulateRate=3)
         Q.clear()
         L = []
         for mp in attackList:
@@ -299,7 +299,7 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
     bestMove = 0
     ind = 0
     for nd in Q:
-        value = miniMax(HuristicFunction.makeNew(ProxyMap.makeCopy(nd[0].proxyMap), (playerId + 1) % 3), beta,
+        value = miniMax(HuristicFunction.makeNew(ProxyMap.makeCopy(nd[0].proxyMap), (playerId + 1) % 3), beta ,
                         (playerId + 1) % 3, alpha[:], 1, turn + 1, mxDepth)
         if bestVal[playerId] < value[playerId]:
             bestVal = value

@@ -10,5 +10,6 @@
     "saftyBata": 0.01,
     "saftyLanda": 0.01,
     "saftyMu": 0.01,
-    "riskRate": 2
+    "riskRate": 2,
+    "riskyFraction" : 0.8
 }
