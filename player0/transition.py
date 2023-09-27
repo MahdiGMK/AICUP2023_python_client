@@ -67,15 +67,15 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
                     hr.updateVertex(v, ProxyMap.Vert(playerId, 1, hr.proxyMap.verts[v].numDef))
                     hr.updateVertex(u, ProxyMap.Vert(playerId, st[simulateRate][0] - 1, 0))
                     if current_depth == 0:
-                        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=hr.proxyMap.players[playerId].nonDropSoldier,
-                                                        doneFort=hr.proxyMap.players[playerId],
+                        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=hr.player.nonDropSoldier,
+                                                        doneFort=hr.player.doneFort,
                                                         hadSuccessInAttack=True))
 
                     qp.append((hr.calculateValue(), movement, idx))
 
                     if current_depth == 0:
-                        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=hr.proxyMap.players[playerId].nonDropSoldier,
-                                                        doneFort=hr.proxyMap.players[playerId],
+                        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=hr.player.nonDropSoldier,
+                                                        doneFort=hr.player.doneFort,
                                                         hadSuccessInAttack=False))
                     hr.updateVertex(v, ProxyMap.Vert(playerId, hist_v[0], hist_v[1]))
                     hr.updateVertex(u, ProxyMap.Vert(hist_id_u, hist_u[0], hist_u[1]))
@@ -129,8 +129,8 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
 def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, turn: int):
     qp = []
     for hr in HR:
-        cnt = hr.proxyMap.players[playerId].nonDropSoldier
-        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=0, doneFort=hr.proxyMap.players[playerId].doneFort))
+        cnt = hr.player.nonDropSoldier
+        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=0, doneFort=hr.player.doneFort))
         lst = []
         for v in hr.vertices:
             if hr.cntMarzi[v] == 0:
@@ -145,14 +145,14 @@ def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, tu
             hr.updateVertex(v, ProxyMap.Vert(playerId, hr.proxyMap.verts[v].numNorm + cnt, hr.proxyMap.verts[v].numDef))
             qp.append((hr.calculateValue(), Movement(MoveKind.DropSoldier, [v, cnt])))
             hr.updateVertex(v, ProxyMap.Vert(hst[0], hst[1], hst[2]))
-        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=cnt, doneFort=hr.proxyMap.players[playerId].doneFort))
+        hr.updatePlayer(ProxyMap.Player(nonDropSoldier=cnt, doneFort=hr.player.doneFort))
     qp.sort(key=lambda x: x[0], reverse=True)
     Q = []
     for i in range(min(beta, len(qp))):
         move = qp[i][1]
         nhr = HuristicFunction.makeCopy(hr)
         v = move.move[0]
-        nhr.updatePlayer(ProxyMap.Player(doneFort=hr.proxyMap.players[playerId]))
+        nhr.updatePlayer(ProxyMap.Player(doneFort=hr.player.doneFort))
         nhr.updateVertex(v, ProxyMap.Vert(playerId, hr.proxyMap.verts[v].numNorm + cnt, hr.proxyMap.verts[v].numDef))
         Q.append([nhr, [move]])
     return Q
@@ -245,7 +245,7 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
     ind = 0
     for nd in Q:
         value = miniMax(HuristicFunction.makeNew(nd[0].proxyMap, (playerId + 1) % 3), beta,
-                        (playerId + 1) % 3, alpha[:], 1, turn + 1, mxDepth)
+                        (playerId + 1) % 3, copy.deepcopy(alpha) , 1, turn + 1, mxDepth)
         if bestVal < value:
             bestVal = value
             bestMove = ind
