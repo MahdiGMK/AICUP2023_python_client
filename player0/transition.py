@@ -226,10 +226,8 @@ def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, 
 def calcStateValue(HR: HuristicFunction, playerId):
     hValues = [0, 0, 0]
     hValues[playerId] = HR.calculateValue()
-    hValues[(playerId + 1) % 3] = HuristicFunction(data.mapp, HR.proxyMap, data.genomee,
-                                                   (playerId + 1) % 3).calculateValue()
-    hValues[(playerId + 2) % 3] = HuristicFunction(data.mapp, HR.proxyMap, data.genomee,
-                                                   (playerId + 2) % 3).calculateValue()
+    hValues[(playerId + 1) % 3] = HuristicFunction.makeNew(HR.proxyMap, (playerId + 1) % 3).calculateValue()
+    hValues[(playerId + 2) % 3] = HuristicFunction.makeNew(HR.proxyMap, (playerId + 2) % 3).calculateValue()
     total = 0
     for i in hValues:
         total += i * i
@@ -246,7 +244,7 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
     bestMove = 0
     ind = 0
     for nd in Q:
-        value = miniMax(HuristicFunction(data.mapp, nd[0].proxyMap, data.genomee, (playerId + 1) % 3), beta,
+        value = miniMax(HuristicFunction.makeNew(nd[0].proxyMap, (playerId + 1) % 3), beta,
                         (playerId + 1) % 3, copy.deepcopy(alpha), 1, turn + 1, mxDepth)
         if bestVal < value:
             bestVal = value

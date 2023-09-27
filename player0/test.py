@@ -49,8 +49,7 @@ for cntr in range(numGames):
 
     pd.genomee = gen
     pd.mapp = map
-    hr = pd.HuristicFunction(map, prx, gen, 0)
-    hr.buildDsu()
+    hr = pd.HuristicFunction.makeNew(prx, 0)
     hr.proxyMap.players[0].nonDropSoldier += 100
 
     print(ts.calcStateValue(hr , 0))
