@@ -240,12 +240,12 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
     if turn > mxDepth:
         return calcStateValue(HR, playerId)[playerId]
     bestVal = 0
-    Q = beamSearch([copy.deepcopy(HR)], beta, playerId, turn, attackOrMove)
+    Q = beamSearch([HuristicFunction.makeCopy(HR)], beta, playerId, turn, attackOrMove)
     bestMove = 0
     ind = 0
     for nd in Q:
         value = miniMax(HuristicFunction.makeNew(nd[0].proxyMap, (playerId + 1) % 3), beta,
-                        (playerId + 1) % 3, copy.deepcopy(alpha), 1, turn + 1, mxDepth)
+                        (playerId + 1) % 3, alpha[:], 1, turn + 1, mxDepth)
         if bestVal < value:
             bestVal = value
             bestMove = ind

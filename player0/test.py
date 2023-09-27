@@ -32,7 +32,7 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(1e2)
+numGames = int(20)
 numActions  = int(1e3)
 testCorrectness = False
 
