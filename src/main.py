@@ -12,7 +12,7 @@ from src.turn_controllers.change_turn import change_turn
 import os
 import argparse
 
-def main() :
+def main(map) :
     # define argument parser
     parser = argparse.ArgumentParser(description='choose map to play on')
     parser.add_argument('-m', '--map', type=str, help='choose map to play on')
@@ -25,17 +25,17 @@ def main() :
     maps = os.listdir('maps')
 
     ## get the selected map from the player
-    selected_map = str(maps.index(args.map)) if args.map != None else "None"
+    # selected_map = str(maps.index(args.map)) if args.map != None else "None"
 
-    while selected_map.isdigit() == False or int(selected_map) >= len(maps) or int(selected_map) < 0:
-        ## show the list of maps from the maps folder
-        print("Choose a map from the list of maps:")
-        for i, map in enumerate(maps):
-            print(i,'-', map)
-        selected_map = input("Enter the number of the map you want to choose: ")
+    # while selected_map.isdigit() == False or int(selected_map) >= len(maps) or int(selected_map) < 0:
+    #     ## show the list of maps from the maps folder
+    #     print("Choose a map from the list of maps:")
+    #     for i, map in enumerate(maps):
+    #         print(i,'-', map)
+    #     selected_map = input("Enter the number of the map you want to choose: ")
 
     ## read the selected map
-    main_game.read_map('maps/'+maps[int(selected_map)])
+    main_game.read_map('maps/'+map)
 
     main_game.config = read_config.read_config()
 

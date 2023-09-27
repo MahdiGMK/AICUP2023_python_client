@@ -1,4 +1,3 @@
 import run
 
-run.run()
-run.run()
+run.run("map1.json" , "player0/genome.json" , "player0/genome.json" , "player0/genome.json")

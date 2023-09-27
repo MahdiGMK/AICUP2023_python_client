@@ -26,7 +26,8 @@ def initializer(game: ClientGame):
             s = stratScores[i]
             pd.mapp.setStrategic(v , s)
         
-        pd.genomee = Genome("player0/genome.json")
+        pd.genomee = Genome(pd.genomee)
+        # pd.genomee = Genome("player0/genome.json")
     global playerId
     playerId = game.get_player_id()['player_id']
     # print('gooooodd' , playerId)
