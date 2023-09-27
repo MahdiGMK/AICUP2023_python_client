@@ -90,6 +90,7 @@ def pow2(num):
 global mapp , genomee
 updateTime = 0
 initTime = 0
+copyTime = 0
 class HuristicFunction :
     def __str__(self) :
         return f"Hval = {self.calculateValue()}"
@@ -98,6 +99,8 @@ class HuristicFunction :
         return f"Hval = {self.calculateValue()}"
     @classmethod
     def makeCopy(cls , hr) :
+        global copyTime
+        copyTime -= time.time()
         val : HuristicFunction = cls()
         
         val.ci2 = hr.ci2
@@ -120,7 +123,7 @@ class HuristicFunction :
         val.dsuPar = hr.dsuPar[:]
         val.dsuSize = hr.dsuSize[:]
         val.vertices = hr.vertices[:]
-        
+        copyTime += time.time()
         return val
         
     def __init__(self) :

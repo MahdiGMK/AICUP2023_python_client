@@ -33,7 +33,7 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(10)
+numGames = int(1)
 numActions  = int(1e3)
 testCorrectness = False
 
@@ -55,13 +55,13 @@ for cntr in range(numGames):
     print(ts.calcStateValue(hr , 0))
 
 
-    tst = ts.miniMax(hr , 5 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
+    tst = ts.miniMax(hr , 4 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
     print(ts.calcStateValue(tst[0] , 0))
 
 
     # tst = ts.beamSearch([hr] , 5  , 0 , 0 , 1)
     # cnt = 0
-    # for mp in tst :
+    # for mp in tst 
     #     print(cnt , " : " , mp)
     #     cnt+=1
 
@@ -155,9 +155,15 @@ print("DONE")
 print(time.time() - t)
 
 print('init time : ' , pd.initTime)
-print('exp init time : ' , pd_exp.initTime)
+# print('exp init time : ' , pd_exp.initTime)
 print('update time : ' , pd.updateTime)
-print('exp update time : ' , pd_exp.updateTime)
+# print('exp update time : ' , pd_exp.updateTime)
+print('copy time : ' , pd.copyTime)
 
 
-
+print('mini max count : ' , ts.mnmxCNT)
+print('beam search time : ' , ts.beamSearchTime)
+print('attack beam search time : ' , ts.attackBeamSearchTime)
+print('drop soldier time : ' , ts.dropSoldierTime)
+print('move soldier time : ' , ts.moveSoldierTime)
+print('calc state time : ' , ts.calcStateTime)
