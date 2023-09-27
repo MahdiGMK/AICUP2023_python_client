@@ -130,7 +130,6 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
         path[0] = Q[depth][i][3]
         path[1].reverse()
     attackBeamSearchTime += time.time()
-    print("#######" , len(res))
     return res
 
 
@@ -203,7 +202,7 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
                 qp.append((hr.calculateValue(), Movement(MoveKind.Move, [v, u, cnt]), id))
                 hr.updateVertex(v, ProxyMap.Vert(playerId, vNorm, vDef))
                 hr.updateVertex(u, ProxyMap.Vert(playerId, uNorm, uDef))
-            qp.append((hr.calculateValue() , Movement(MoveKind.Nothing , []) , id))
+        qp.append((hr.calculateValue() , Movement(MoveKind.Nothing , []) , id))
         id += 1
     qp.sort(key=lambda x: x[0], reverse=True)
     Q = []
