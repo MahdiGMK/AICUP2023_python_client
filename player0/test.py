@@ -47,6 +47,9 @@ for cntr in range(numGames):
     pd.genomee = gen
     pd.mapp = map
     hr = pd.HuristicFunction.makeNew(prx, 0)
+    prx.players[0].nonDropSoldier = 10
+    prx.players[1].nonDropSoldier = 10
+    prx.players[2].nonDropSoldier = 10
 
     # tst = ts.beamSearch([copy.deepcopy(hr)] , 20 , 0 , 1 , 1)
     # for mp in tst :
@@ -57,6 +60,7 @@ for cntr in range(numGames):
 
     tst = ts.miniMax(hr , 4 , 0 , [0 , 0 , 0] , 1 , 1 , 3)
     print(ts.calcStateValue(tst[0] , 0))
+    print(tst[1])
 
 
     # tst = ts.beamSearch([hr] , 5  , 0 , 0 , 1)

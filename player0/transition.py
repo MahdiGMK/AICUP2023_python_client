@@ -264,6 +264,8 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
     global miniMaxTime
     miniMaxTime -= time.time()
     mnmxCNT += 1
+    safetyTimer = time.time()
+    
     if turn > mxDepth:
         miniMaxTime += time.time()
         return calcStateValue(HR, playerId)
@@ -278,7 +280,7 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
             bestVal = value
             bestMove = ind
         alpha[playerId] = max(alpha[playerId], value[playerId])
-        if sum(alpha) > 1 + 0.001:
+        if sum(alpha) > 1 + 0.001 or time.time() - safetyTimer > .85:
             break
         ind += 1
     if turn == 1:

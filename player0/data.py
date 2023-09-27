@@ -39,7 +39,10 @@ class ProxyMap:
         self.actions = actions
         return self
     def __init__(self) :
-        x = 0
+        self.players : list[self.Player]
+        self.verts : list[self.Vert]
+        self.actions : list
+        
     @classmethod
     def makeCopy(cls , prx) :
         val = cls()
@@ -101,33 +104,53 @@ class HuristicFunction :
     def makeCopy(cls , hr) :
         global copyTime
         copyTime -= time.time()
-        val : HuristicFunction = cls()
+        self : HuristicFunction = cls()
         
-        val.ci2 = hr.ci2
-        val.currentPoint = hr.currentPoint
-        val.nextTurnSoldier = hr.nextTurnSoldier
-        val.numberOfBorders = hr.numberOfBorders
-        val.numStrat = hr.numStrat
-        val.playerId = hr.playerId
-        val.soldiers = hr.soldiers
-        val.totalSafety = hr.totalSafety
+        self.ci2 = hr.ci2
+        self.currentPoint = hr.currentPoint
+        self.nextTurnSoldier = hr.nextTurnSoldier
+        self.numberOfBorders = hr.numberOfBorders
+        self.numStrat = hr.numStrat
+        self.playerId = hr.playerId
+        self.soldiers = hr.soldiers
+        self.totalSafety = hr.totalSafety
         
-        val.proxyMap = ProxyMap.makeCopy(hr.proxyMap)
-        val.player = val.proxyMap.players[val.playerId]
-        val.powELossRemain1 = hr.powELossRemain1[:]
-        val.powELossRemain2 = hr.powELossRemain2[:]
-        val.safety = hr.safety[:]
-        val.cntMarzi = hr.cntMarzi[:]
-        val.dsuHist = hr.dsuHist[:]
-        val.dsuHomie = hr.dsuHomie[:]
-        val.dsuPar = hr.dsuPar[:]
-        val.dsuSize = hr.dsuSize[:]
-        val.vertices = hr.vertices[:]
+        self.proxyMap = ProxyMap.makeCopy(hr.proxyMap)
+        self.player = self.proxyMap.players[self.playerId]
+        self.powELossRemain1 = hr.powELossRemain1[:]
+        self.powELossRemain2 = hr.powELossRemain2[:]
+        self.safety = hr.safety[:]
+        self.cntMarzi = hr.cntMarzi[:]
+        self.dsuHist = hr.dsuHist[:]
+        self.dsuHomie = hr.dsuHomie[:]
+        self.dsuPar = hr.dsuPar[:]
+        self.dsuSize = hr.dsuSize[:]
+        self.vertices = hr.vertices[:]
         copyTime += time.time()
-        return val
+        return self
         
     def __init__(self) :
-        x = 0
+        self.ci2 : int
+        self.currentPoint : float
+        self.nextTurnSoldier : int
+        self.numberOfBorders : int
+        self.numStrat : int
+        self.playerId : int
+        self.soldiers : int
+        self.totalSafety : int
+        
+        self.proxyMap : ProxyMap
+        self.player : ProxyMap.Player
+        self.powELossRemain1 : list[float]
+        self.powELossRemain2 : list[float]
+        self.safety : list[float]
+        self.cntMarzi : list[int]
+        self.dsuHist : list[int]
+        self.dsuHomie : list[bool]
+        self.dsuPar : list[int]
+        self.dsuSize : list[int]
+        self.vertices : list[int]
+        
     @classmethod
     def makeNew(cls , proxyMap : ProxyMap , playerId : int) :
         global initTime
