@@ -7,10 +7,10 @@ class Map:
             self.strategicPts = 0
 
     def __init__(self, n):
-        self.n = n
-        self.adj = [[] for i in range(n)]
-        self.verts = [self.Vert() for i in range(n)]
-        self.strategicVerts = []
+        self.n : int = n
+        self.adj : list[list[int]] = [[] for i in range(n)]
+        self.verts : list[self.Vert] = [self.Vert() for i in range(n)]
+        self.strategicVerts : list[int] = []
 
     def setAdj(self, v, adj):
         self.adj[v] = adj
@@ -90,7 +90,9 @@ staticData = StaticData()
 def pow2(num):
     return num * num
 
-global mapp , genomee
+global mapp  , genomee 
+mapp : Map
+genomee : Genome
 updateTime = 0
 initTime = 0
 copyTime = 0
