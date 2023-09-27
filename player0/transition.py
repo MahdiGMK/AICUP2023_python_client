@@ -80,6 +80,12 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
                     hr.updateVertex(v, ProxyMap.Vert(playerId, hist_v[0], hist_v[1]))
                     hr.updateVertex(u, ProxyMap.Vert(hist_id_u, hist_u[0], hist_u[1]))
         qp.sort(key=lambda x: x[0], reverse=True)
+        L = []
+        L.append(qp[0])
+        for i in range(1 , len(qp)) :
+            if abs(qp[i-1][0] - qp[i][0]) > 0.000001 :
+                L.append(qp[i])
+        qp  = L
         new_q = Q[current_depth + 1]
         for i in range(min(beta, len(qp))):
             movement = qp[i][1]
@@ -250,7 +256,6 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
             bestVal = value
             bestMove = ind
         alpha[playerId] = max(alpha[playerId], value[playerId])
-        print(alpha)
         if sum(alpha) > 1 + 0.001:
             break
         ind += 1
