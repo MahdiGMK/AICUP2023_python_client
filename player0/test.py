@@ -22,9 +22,9 @@ gen = pd.Genome("genome.json")
 
 t = time.time()
 
-numGames = int(1)
-numActions  = int(1e5)
-testCorrectness = False
+numGames = int(1e2)
+numActions  = int(1e3)
+testCorrectness = True
 
 for cntr in range(numGames) :
 
@@ -60,7 +60,6 @@ for cntr in range(numGames) :
 
     hr_exp = pd_exp.HuristicFunction.makeNew(prx_exp , 0)
     hr_exp.updatePlayer(pd.ProxyMap.Player(100 , False , False))
-    hr_exp.buildDsu()
     
     for cnt in range(1 , numActions + 1) :
         # if False :
@@ -87,12 +86,15 @@ for cntr in range(numGames) :
             hr_exp.updateVertex(vert , pd.ProxyMap.Vert(0 , num , numDef))
             
         hr_main = pd.HuristicFunction(prx , 0) if testCorrectness else hr
+        hr_main_exp = pd_exp.HuristicFunction.makeNew(prx_exp , 0) if testCorrectness else hr
+        # hr_main_exp.buildDsu()
         # hr2 = pd.HuristicFunction(map , prx , gen , 1)
-        if abs(hr.calculateValue() - hr_exp.calculateValue()) > 0.01 or abs(hr.calculateValue() - hr_main.calculateValue()) > 0.01:
+        if abs(hr.calculateValue() - hr_exp.calculateValue()) > 0.01 or abs(hr.calculateValue() - hr_main.calculateValue()) > 0.01 or abs(hr.calculateValue() - hr_main_exp.calculateValue()) > 0.01:
             print("Error in " , cnt)
             print(hr.calculateValue() , hr.viewDataForDbug())
             print(hr_exp.calculateValue() , hr_exp.viewDataForDbug())
             print(hr_main.calculateValue() , hr_main.viewDataForDbug())
+            print(hr_main_exp.calculateValue() , hr_main_exp.viewDataForDbug())
             break
     
 # print(hr.calculateValue() , hr.viewDataForDbug())

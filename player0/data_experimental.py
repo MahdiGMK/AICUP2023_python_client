@@ -68,17 +68,14 @@ class HuristicFunction :
         # safety[v] =  sigma y^1/2 + b * sigma y + c b * sigma y^2 + m*X 
         self.totalSafety = 0
         self.safety = [0 for i in range(mapp.n)]
-        # self.danger = [0 for i in range(mapp.n)]
-        # self.sqy = [0 for i in range(mapp.n)]
-        # self.normy = [0 for i in range(mapp.n)]
-        # self.powy = [0 for i in range(mapp.n)]
         self.powELossRemain1 = [0 for i in range(mapp.n)]
         self.powELossRemain2 = [0 for i in range(mapp.n)]
         self.numberOfBorders = 0
 
         #sigma (Ci/n)^2
         self.ci2 = 0
-        # self.seen = [False for i in range(mapp.n)]
+        # self.buildDsu()
+        
         for v in range(mapp.n) :
             if self.proxyMap.verts[v].team == self.playerId:
                 self.vertices.append(v)
@@ -118,18 +115,11 @@ class HuristicFunction :
                 
                 if(self.cntMarzi[v] > 0) :
                     danger = self.powELossRemain1[v]*self.powELossRemain1[v] + safetyB*self.powELossRemain2[v]*self.powELossRemain2[v]
-                    # self.safety[v] = self.sqy[v] +safetyBeta*self.normy[v] + safetyLanda * self.powy[v] 
                     safety = self.safety[v] + safetyMu * (proxyMap.verts[v].numDef + proxyMap.verts[v].numNorm)
                     self.totalSafety+= math.sqrt(safety/math.sqrt(danger))
-        #safety again
-        
-        # for i in self.vertices : 
-        #     if (proxyMap.verts[i].team==playerId and self.cntMarzi[i] > 0) : 
-        #         self.danger[i] = self.powELossRemain1[i]*self.powELossRemain1[i] + safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
-        #         self.safety[i] = self.sqy[i] +safetyBeta*self.normy[i] + safetyLanda * self.powy[i] 
-        #         self.safety[i] += safetyMu * (proxyMap.verts[i].numDef + proxyMap.verts[i].numNorm)
-        #         self.totalSafety+= math.sqrt(self.safety[i]/math.sqrt(self.danger[i]))
+           
         self.totalSafety /= (self.numberOfBorders+1)
+        self.buildDsu()         
         
         #soldiers in hand
         self.nonDropSoldier = proxyMap.players[playerId].nonDropSoldier
@@ -275,15 +265,6 @@ class HuristicFunction :
             self.nextTurnSoldier+=len(self.vertices) // 4 + self.hadSuccesfulAttack * 3
             
 
-        #safety : 
-        # self.totalSafety
-        # self.safety[]    alpha * 
-        # self.danger[]    a * pow2(powELossRemain1) + b * pow2(powELossRemain2)
-        # self.sqy[]       sigma(y) sqrt(y)
-        # self.normy[]     sigma(y) y
-        # self.powy[]      sigma(y) pow2(y)
-        # self.powELossRemain1[]    sigma(u) pow2(E(loss[v] + remaining[u]))
-        # self.powELossRemain2[]    sigma(u) pow2(E(loss[v] + remaining[u]))
         
         def removeSafety(v : int , u : int) :
             if self.proxyMap.verts[v].team != self.playerId or self.proxyMap.verts[u].team == -1 : return         
