@@ -121,11 +121,13 @@ def turn(game: ClientGame):
             mv : Movement
             v = mv.move[0]
             u = mv.move[1]
+            if (prx.verts[v].team!=playerId) : 
+                continue
             numV = prx.verts[v].numNorm
             numU = prx.verts[u].numNorm + prx.verts[u].numDef
             state = pd.staticData.getState(numV , numU)
             if state[3][1] == 0 :
-                game.attack(v , u , numV / numU * pd.genomee.data['riskyFraction'] , 0.999)
+                game.attack(v , u , pd.genomee.data['riskyFraction'] , 0.999)
                 teams = game.get_owners()
                 numNorms = game.get_number_of_troops()
                 numDefs = game.get_number_of_fort_troops()

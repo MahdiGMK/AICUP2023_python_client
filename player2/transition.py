@@ -150,8 +150,6 @@ def dropSoldier(HR: [HuristicFunction], beta: int, depth: int, playerId: int, tu
         hr.player.nonDropSoldier = 0
         lst = []
         for v in hr.vertices:
-            if hr.cntMarzi[v] == 0:
-                continue
             lst.append(v)
             for u in pd.mapp.adj[v]:
                 if hr.proxyMap.verts[u].team == -1:

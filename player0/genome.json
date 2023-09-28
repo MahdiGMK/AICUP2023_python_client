@@ -11,8 +11,8 @@
     "saftyLanda": 1,
     "saftyMu": 3,
     "strategicBonus": 2,
-    "stratSold" : 0.05 ,
-    "stratSoldSq" : 0.1 ,
+    "stratSold" : 0.2 ,
+    "stratSoldSq" : 0.5 ,
     "riskRate": 2,
     "riskRate2": 4,
     "riskyFraction": 0.8

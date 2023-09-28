@@ -9,7 +9,7 @@ def runGame(map , genome1 , genome2 , genome3) :
     res[x[2][1]] = 3
     print(res)
 
-runGame("map1.json" , "player0/genome.json" , "player0/genome.json" , "player0/genome.json")
+runGame("map53.json" , "player0/genome.json" , "player0/genome.json" , "player0/genome.json")
 # print(res)
 # run.run("map1.json" , "player0/genome.json" , "player0/genome.json" , "player0/genome.json")
 # run.run("map1.json" , "player0/genome.json" , "player0/genome.json" , "player0/genome.json")
