@@ -36,19 +36,16 @@ class ProxyMap:
         self = cls()
         self.players = [self.Player(0 , False , False) for i in range(numPlayers)]
         self.verts = [self.Vert(-1 , 0 , 0) for i in range(map.n)]
-        self.actions = actions
         return self
     def __init__(self) :
         self.players : list[self.Player]
         self.verts : list[self.Vert]
-        self.actions : list
         
     @classmethod
     def makeCopy(cls , prx) :
         self = cls()
         self.players = [ProxyMap.Player(p.nonDropSoldier , p.doneFort , p.hadSuccessInAttack) for p in prx.players]
         self.verts = [ProxyMap.Vert(v.team , v.numNorm , v.numDef) for v in prx.verts]
-        self.actions = copy.deepcopy(prx.actions)
         return self
         
 class Genome :

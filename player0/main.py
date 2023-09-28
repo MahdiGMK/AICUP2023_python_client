@@ -49,14 +49,14 @@ def initializer(game: ClientGame):
     hr = HuristicFunction.makeNew(prx , playerId)
     print(hr.calculateValue() , hr.viewDataForDbug())
     if (turn_number > 15) : 
-        res = ts.miniMax(hr , 4 , playerId , [0,0,0] , 1 , 1 , 3)
+        res = ts.miniMax(hr , 5 , playerId , [0,0,0] , 1 , 1 , 1) # 4,3
         for mv in res[1] : 
             if mv.kind==MoveKind.DropSoldier: 
                 print(game.put_one_troop(mv.move[0]) , "-- putting one troop on", mv.move[0])
                 break
         
     else : 
-        res = ts.miniMaxPhase1(hr , 5 , playerId , [0 , 0 , 0] , 1 , 5)
+        res = ts.miniMaxPhase1(hr , 5 , playerId , [0 , 0 , 0] , 1 , 3) # 5,5
         print(game.put_one_troop(res), "-- putting one troop on", res)
 
     print()
@@ -105,6 +105,7 @@ def turn(game: ClientGame):
     
     prx = ProxyMap.makeNew(pd.mapp , 3 , [])
     prx.players[playerId].nonDropSoldier = game.get_number_of_troops_to_put()['number_of_troops']
+    print("troops" , prx.players[playerId].nonDropSoldier)
     for i in range(pd.mapp.n) :
         prx.verts[i].team = teams[str(i)]
         prx.verts[i].numNorm = numNorms[str(i)]
@@ -112,7 +113,7 @@ def turn(game: ClientGame):
         # print(prx.verts[i].team , prx.verts[i].numNorm , prx.verts[i].numDef)
     hr = HuristicFunction.makeNew(ProxyMap.makeCopy(prx) , playerId)
     print(hr.calculateValue() , hr.viewDataForDbug())
-    res = ts.miniMax(hr , 5 , playerId , [0 , 0 , 0] , 1 , 1 , 4) # optimize needed ...
+    res = ts.miniMax(hr , 5 , playerId , [0 , 0 , 0] , 1 , 1 , 1) # optimize needed ...defualt 5 4 
     print(res[1])
     
     # drop
@@ -122,6 +123,7 @@ def turn(game: ClientGame):
             v = mv.move[0]
             cnt = mv.move[1]
             if cnt > 0 :
+                print("dropped " , cnt)
                 game.put_troop(v , cnt)
                 prx.verts[v].numNorm += cnt
 
@@ -150,7 +152,7 @@ def turn(game: ClientGame):
     game.next_state()
     # move
     hr = HuristicFunction.makeNew(ProxyMap.makeCopy(prx) , playerId)
-    res = ts.miniMax(hr , 4 , playerId , [0 , 0 , 0] , 0 , 1 , 2)
+    res = ts.miniMax(hr , 5 , playerId , [0 , 0 , 0] , 0 , 1 , 1) # 4 2 
     for mv in res[1] :
         if mv.kind == MoveKind.Move :
             mv : Movement

@@ -148,6 +148,11 @@ def dropSoldier(HR: [(HuristicFunction , [Movement])], beta: int, depth: int, pl
     for mp in HR:
         hr = mp[0]
         cnt = int(hr.player.nonDropSoldier * fraction)
+        # if(turn == 1) :
+        #     print("---nonDrop---" , hr.player.nonDropSoldier)
+        #     print("---fraction--" , fraction)
+        #     print("-----cnt-----" , cnt)
+        qp.append((hr, mp[1] + [Movement(MoveKind.Nothing , [])]))
         if cnt == 0 : continue
         # hr.updatePlayer(ProxyMap.Player(nonDropSoldier=0, doneFort=hr.player.doneFort))
         hr.player.nonDropSoldier -= cnt
@@ -159,15 +164,15 @@ def dropSoldier(HR: [(HuristicFunction , [Movement])], beta: int, depth: int, pl
         for v in lst:
             hst = (hr.proxyMap.verts[v].team, hr.proxyMap.verts[v].numNorm, hr.proxyMap.verts[v].numDef)
             hr.updateVertex(v, ProxyMap.Vert(playerId, hr.proxyMap.verts[v].numNorm + cnt, hr.proxyMap.verts[v].numDef))
-            qp.append((hr.calculateValue(), mp[1] + [Movement(MoveKind.DropSoldier, [v, cnt])]))
+            qp.append((hr, mp[1] + [Movement(MoveKind.DropSoldier, [v, cnt])]))
             hr.updateVertex(v, ProxyMap.Vert(hst[0], hst[1], hst[2]))
         # hr.updatePlayer(ProxyMap.Player(nonDropSoldier=cnt, doneFort=hr.player.doneFort))
         hr.player.nonDropSoldier += cnt
-    qp.append((hr.calculateValue(), mp[1] + [Movement(MoveKind.Nothing, [])]))
-    qp.sort(key=lambda x: x[0], reverse=True)
+    qp.sort(key=lambda x: x[0].calculateValue(), reverse=True)
     Q = []
     for i in range(min(beta, len(qp))):
         move = qp[i][1][len(qp[i][1])-1]
+        hr = qp[i][0]
         nhr = HuristicFunction.makeCopy(hr)
         if (move.kind == MoveKind.Nothing) : 
             Q.append([nhr , qp[i][1]])
@@ -243,8 +248,11 @@ def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, 
     Q = []
     if turn > 1 or attackOrMove:
         dropSoldierList = dropSoldier([(hr , []) for hr in HR], playerId=playerId, beta=max(5 , beta), turn=turn, depth=5 , fraction=0.34)
+        #print(dropSoldierList)
         dropSoldierList = dropSoldier([(hr[0] , hr[1]) for hr in dropSoldierList], playerId=playerId, beta=max(5 , beta), turn=turn, depth=5 , fraction=0.5)
+        #print(dropSoldierList)
         dropSoldierList = dropSoldier([(hr[0] , hr[1]) for hr in dropSoldierList], playerId=playerId, beta=max(5 , beta), turn=turn, depth=5 , fraction=1)
+        #print(dropSoldierList)
         for mp in dropSoldierList:
             Q.append((mp[0], mp[1]))
         attackList = attackBeamSearch(Q, max(beta*2 , 5), 7, playerId, turn)
@@ -302,8 +310,8 @@ def miniMax(HR: HuristicFunction, beta: int, playerId: int, alpha: [], attackOrM
         miniMaxTime += time.time()
         return calcStateValue(HR, playerId)
     #if turn > 1 -> update nonDrop Soldier
-    if turn > 1 : 
-        HR.player.nonDropSoldier += HR.player.hadSuccessInAttack * 3 + HR.nextTurnSoldier
+    # if turn > 1 : 
+    #     HR.player.nonDropSoldier += HR.player.hadSuccessInAttack * 3 + HR.nextTurnSoldier
     bestVal = [0, 0, 0]
     Q = beamSearch([HR], beta, playerId, turn, attackOrMove)
     bestMove = 0
