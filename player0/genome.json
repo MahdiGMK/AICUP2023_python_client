@@ -1,15 +1,19 @@
 {
-    "numStrat": 1,
-    "connectivity": 1,
-    "totalSafety": 6,
+    "numStrat": 2,
+    "connectivity": 10,
+    "totalSafety": 10,
     "nonDropSoldier": 0.2,
-    "currentPoint": 0.5,
+    "currentPoint": 3,
     "nextTurnSoldier": 1,
     "soldiers": 0.01,
-    "saftyB": 0.01,
-    "saftyBata": 0.01,
-    "saftyLanda": 0.01,
-    "saftyMu": 0.01,
+    "saftyB": 1,
+    "saftyBata": 1,
+    "saftyLanda": 1,
+    "saftyMu": 3,
+    "strategicBonus": 2,
+    "stratSold" : 0.05 ,
+    "stratSoldSq" : 0.1 ,
     "riskRate": 2,
-    "riskyFraction" : 0.8
+    "riskRate2": 4,
+    "riskyFraction": 0.8
 }

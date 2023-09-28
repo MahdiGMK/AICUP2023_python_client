@@ -62,8 +62,9 @@ class StaticData:
         fl = open("States.json", "r")
         self.states = json.load(fl)
         fl.close()
-
     def getState(self, n, m) -> list:
+        if n==0 or m==0 : 
+            print("ridim" , n , m)
         mx = max(n, m)
         if mx > 300:
 
@@ -169,11 +170,12 @@ class HuristicFunction :
         self.cntMarzi = [0 for i in range(mapp.n)]
         
         #params
-        global safetyB , safetyBeta , safetyLanda , safetyMu
+        global safetyB , safetyBeta , safetyLanda , safetyMu , strategicBonus
         safetyB = genomee.data['saftyB']
         safetyBeta = genomee.data['saftyBata']
         safetyLanda = genomee.data['saftyLanda']
         safetyMu = genomee.data['saftyMu']
+        strategicBonus = genomee.data['strategicBonus']
 
         # safety (sigma (Pi/Di^1/2))  /|marzi|
         # danger[v] = sigma^2 E^2(loss[v] + remaining[u]) + b * sigma^2 E^2(loss[v] + remaining[u])
@@ -213,7 +215,7 @@ class HuristicFunction :
                         if (self.cntMarzi[v]==1) : 
                             self.numberOfBorders+=1
                         n = self.proxyMap.verts[u].numNorm
-                        m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                        m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                         simulatedAttack = staticData.getState(n , m)
                         self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
                     else :
@@ -221,14 +223,14 @@ class HuristicFunction :
                         if (self.cntMarzi[v]==1) : 
                             self.numberOfBorders+=1
                         n = self.proxyMap.verts[u].numNorm
-                        m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                        m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                         simulatedAttack = staticData.getState(n , m)
                         self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
                 
                 if(self.cntMarzi[v] > 0) :
                     danger = self.powELossRemain1[v]*self.powELossRemain1[v] + safetyB*self.powELossRemain2[v]*self.powELossRemain2[v]
                     safety = self.safety[v] + safetyMu * (proxyMap.verts[v].numDef + proxyMap.verts[v].numNorm)
-                    self.totalSafety+= math.sqrt(safety/math.sqrt(danger))
+                    self.totalSafety += math.sqrt(safety/math.sqrt(danger)) * (1 if mapp.verts[v].strategicPts == 0 else strategicBonus)
            
         self.totalSafety /= (self.numberOfBorders+1)
         self.buildDsu()         
@@ -385,7 +387,7 @@ class HuristicFunction :
                 if (self.cntMarzi[v]==0) : 
                     self.numberOfBorders-=1
                 n = self.proxyMap.verts[u].numNorm
-                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                 simulatedAttack = staticData.getState(n, m)
                 self.powELossRemain1[v] -= pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else:
@@ -393,7 +395,7 @@ class HuristicFunction :
                 if (self.cntMarzi[v] == 0):
                     self.numberOfBorders -= 1
                 n = self.proxyMap.verts[u].numNorm
-                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                 simulatedAttack = staticData.getState(n, m)
                 self.powELossRemain2[v] -= pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
         
@@ -408,7 +410,7 @@ class HuristicFunction :
                 if (self.cntMarzi[v]==1) : 
                     self.numberOfBorders+=1
                 n = self.proxyMap.verts[u].numNorm
-                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                 simulatedAttack = staticData.getState(n , m)
                 self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else:
@@ -416,7 +418,7 @@ class HuristicFunction :
                 if (self.cntMarzi[v] == 1):
                     self.numberOfBorders += 1
                 n = self.proxyMap.verts[u].numNorm
-                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[u].numNorm
+                m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                 simulatedAttack = staticData.getState(n, m)
                 self.powELossRemain2[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
 
@@ -425,7 +427,7 @@ class HuristicFunction :
             if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
                 safety = self.safety[i] + safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
                 danger = self.powELossRemain1[i]*self.powELossRemain1[i] + safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
-                self.totalSafety-= math.sqrt(safety/math.sqrt(danger))
+                self.totalSafety -= math.sqrt(safety/math.sqrt(danger)) * (1 if mapp.verts[v].strategicPts == 0 else strategicBonus)
         mapp.adj[v].pop()
 
         for u in mapp.adj[v]:
@@ -445,7 +447,7 @@ class HuristicFunction :
             if (self.proxyMap.verts[i].team==self.playerId and self.cntMarzi[i] > 0) : 
                 safety = self.safety[i] + safetyMu * (self.proxyMap.verts[i].numDef + self.proxyMap.verts[i].numNorm)
                 danger = self.powELossRemain1[i]*self.powELossRemain1[i] + safetyB*self.powELossRemain2[i]*self.powELossRemain2[i]
-                self.totalSafety+= math.sqrt(safety/math.sqrt(danger))
+                self.totalSafety += math.sqrt(safety/math.sqrt(danger)) * (1 if mapp.verts[v].strategicPts == 0 else strategicBonus)
         self.totalSafety /= self.numberOfBorders + 1
         mapp.adj[v].pop()
         updateTime += time.time()
@@ -461,6 +463,11 @@ class HuristicFunction :
         value += self.currentPoint * genomee.data["currentPoint"]
         value += (self.nextTurnSoldier + 3 * self.player.hadSuccessInAttack) * genomee.data["nextTurnSoldier"]
         value += self.soldiers * genomee.data["soldiers"]
+        #strategic soldiers 
+        for v in mapp.strategicVerts :
+            vert = self.proxyMap.verts[v]
+            if vert.team == self.playerId :
+                value += genomee.data['stratSoldSq'] * math.sqrt(vert.numDef + vert.numNorm) + genomee.data['stratSold'] * (vert.numDef + vert.numNorm)
         return value
 
 # testing

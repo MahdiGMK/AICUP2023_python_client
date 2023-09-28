@@ -32,6 +32,8 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
     global attackBeamSearchTime
     attackBeamSearchTime -= time.time()
     risk_rate = pd.genomee.data["riskRate"]
+    if turn%3!=1 : 
+        risk_rate = pd.genomee.data["riskRate2"]
     Q = [[]]
     for hr in HR0:
         Q[0].append((0, -1, hr[1], hr[0]))
@@ -59,7 +61,7 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
                     m = hr.proxyMap.verts[u].numNorm + hr.proxyMap.verts[u].numDef
                     st = staticData.getState(n, m)
 
-                    if st[risk_rate][1] > 0:
+                    if st[min(risk_rate , simulateRate)][1] > 0:
                         continue
 
                     movement = Movement(MoveKind.Attack, [v, u])
@@ -68,6 +70,8 @@ def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth
                     hist_u = (hr.proxyMap.verts[u].numNorm, hr.proxyMap.verts[u].numDef)
                     hist_id_u = hr.proxyMap.verts[u].team
 
+                    if(st[simulateRate][0] - 1 == 0) :
+                        print("RIDIDDDIDDI")
                     hr.updateVertex(v, ProxyMap.Vert(playerId, 1, hr.proxyMap.verts[v].numDef))
                     hr.updateVertex(u, ProxyMap.Vert(playerId, st[simulateRate][0] - 1, 0))
                     if current_depth == 0:
@@ -191,9 +195,9 @@ def moveSoldierSearch(HR: list[HuristicFunction], beta: int, playerId: int):
             vNorm = hr.proxyMap.verts[v].numNorm
             vDef = hr.proxyMap.verts[v].numDef
             cnt = vNorm // 2
-            if cnt < 5: continue
+            if cnt < 2: continue
             for u in lst:
-                if (u == v or hr.proxyMap.verts[u].numNorm < 2):
+                if (u == v or hr.proxyMap.verts[u].numNorm < 2 or hr.parDsu(v) != hr.parDsu(u)):
                     continue
                 uNorm = hr.proxyMap.verts[u].numNorm
                 uDef = hr.proxyMap.verts[u].numDef
@@ -237,7 +241,7 @@ def beamSearch(HR: list[HuristicFunction], beta: int, playerId: int, turn: int, 
         dropSoldierList = dropSoldier(HR, playerId=playerId, beta=beta, turn=turn, depth=5)
         for mp in dropSoldierList:
             Q.append((mp[0], mp[1]))
-        attackList = attackBeamSearch(Q, beta*2, 7, playerId, turn, simulateRate=3)
+        attackList = attackBeamSearch(Q, beta*2, 7, playerId, turn, simulateRate=4)
         Q.clear()
         L = []
         for mp in attackList:
@@ -265,8 +269,8 @@ def calcStateValue(HR: HuristicFunction, playerId):
     calcStateTime -= time.time()
     hValues = [0, 0, 0]
     hValues[playerId] = HR.calculateValue()
-    hValues[(playerId + 1) % 3] = HuristicFunction.makeNew(HR.proxyMap, (playerId + 1) % 3).calculateValue()
-    hValues[(playerId + 2) % 3] = HuristicFunction.makeNew(HR.proxyMap, (playerId + 2) % 3).calculateValue()
+    hValues[(playerId + 1) % 3] = HuristicFunction.makeNew(ProxyMap.makeCopy(HR.proxyMap), (playerId + 1) % 3).calculateValue()
+    hValues[(playerId + 2) % 3] = HuristicFunction.makeNew(ProxyMap.makeCopy(HR.proxyMap), (playerId + 2) % 3).calculateValue()
     total = 0
     for i in hValues:
         total += i * i

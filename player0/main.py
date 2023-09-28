@@ -4,14 +4,17 @@ from player0.transition import MoveKind , Movement
 import player0.transition as ts , player0.data as pd
 from src.components.client_game import ClientGame
 
-flag = False
 initialized = False
+turn_number = 0
 
 def initializer(game: ClientGame):
-    global initialized
-    global map
+    global initialized , turn_number , playerId
+    turn_number+=1
+    playerId = game.get_player_id()['player_id']
     
     if not initialized :
+        print(f'player {playerId} initializing')
+        turn_number = 0
         initialized = True
         adj = game.get_adj()
         n = len(adj)
@@ -28,8 +31,6 @@ def initializer(game: ClientGame):
         
         pd.genomee = Genome(pd.genomee)
         # pd.genomee = Genome("player0/genome.json")
-    global playerId
-    playerId = game.get_player_id()['player_id']
     # print('gooooodd' , playerId)
     
     numNorms = game.get_number_of_troops()
@@ -46,8 +47,12 @@ def initializer(game: ClientGame):
     
     hr = HuristicFunction.makeNew(prx , playerId)
     print(hr.calculateValue() , hr.viewDataForDbug())
-    res = ts.miniMaxPhase1(hr , 5 , playerId , [0 , 0 , 0] , 1 , 6)
-    print(game.put_one_troop(res), "-- putting one troop on", res)
+    if (turn_number > 15) : 
+        res = ts.miniMax(hr , 5 , playerId , [0,0,0] , 1 , 1 , 3)
+        print(game.put_one_troop(res[1][0].move[0]) , "-- putting one troop on", res[1][0].move[0])
+    else : 
+        res = ts.miniMaxPhase1(hr , 5 , playerId , [0 , 0 , 0] , 1 , 5)
+        print(game.put_one_troop(res), "-- putting one troop on", res)
 
     # print(game.get_player_id())
     # strategic_nodes = game.get_strategic_nodes()['strategic_nodes']
@@ -131,7 +136,7 @@ def turn(game: ClientGame):
     game.next_state()
     # move
     hr = HuristicFunction.makeNew(ProxyMap.makeCopy(prx) , playerId)
-    res = ts.miniMax(hr , 4 , playerId , [0 , 0 , 0] , 2 , 1 , 2)
+    res = ts.miniMax(hr , 4 , playerId , [0 , 0 , 0] , 0 , 1 , 2)
     for mv in res[1] :
         if mv.kind == MoveKind.Move :
             mv : Movement
@@ -141,6 +146,7 @@ def turn(game: ClientGame):
             game.move_troop(v , u , cnt)
             prx.verts[v].numNorm -= cnt
             prx.verts[u].numNorm += cnt
+            break
     game.next_state()
     # fort  TODO
     # for mv in res[1] :

@@ -20,8 +20,16 @@ def run(map , genome1 , genome2 , genome3) :
     import player0.data as p0d
     import player1.data as p1d
     import player2.data as p2d
+    import player0.transition as p0t
+    import player1.transition as p1t
+    import player2.transition as p2t
+    import player0.main as p0m
+    import player1.main as p1m
+    import player2.main as p2m
+    
     p0d.genomee = genome1
     p1d.genomee = genome2
     p2d.genomee = genome3
-    main.main(map)
+    p0m.initialized = p1m.initialized = p2m.initialized = False
+    return main.main(map)
 

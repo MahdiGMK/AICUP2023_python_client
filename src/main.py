@@ -61,3 +61,4 @@ def main(map) :
 
     if main_game.game_started:
         change_turn(main_game, client_game)
+    return main_game.log['score']

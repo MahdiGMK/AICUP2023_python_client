@@ -1,10 +1,9 @@
 import copy
-import data as pd
-import data_experimental as pd_exp
-import copy
+import player0.data as pd
+# import player0.data_experimental as pd_exp
 import random 
 import time
-import transition as ts
+import player0.transition as ts
 
 
 map = pd.Map(42)
@@ -29,8 +28,14 @@ for e in x:
 for i in [29, 3, 7, 4, 20, 40]:
     map.setStrategic(i, 5)
 
+for L in pd.staticData.states :
+    for L2 in L : 
+        for x in L2 : 
+            if (x[0]<2 and x[1]<1) : 
+                print("riiidi")
 
-gen = pd.Genome("genome.json")
+
+gen = pd.Genome("player0/genome.json")
 
 t = time.time()
 
