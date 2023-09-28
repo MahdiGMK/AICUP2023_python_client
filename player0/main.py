@@ -1,4 +1,4 @@
-import random
+import random , time
 from player0.data import Map , ProxyMap , Genome , HuristicFunction
 from player0.transition import MoveKind , Movement
 import player0.transition as ts , player0.data as pd
@@ -8,6 +8,7 @@ initialized = False
 turn_number = 0
 
 def initializer(game: ClientGame):
+    timer = time.time()
     global initialized , turn_number , playerId
     turn_number+=1
     playerId = game.get_player_id()['player_id']
@@ -48,12 +49,19 @@ def initializer(game: ClientGame):
     hr = HuristicFunction.makeNew(prx , playerId)
     print(hr.calculateValue() , hr.viewDataForDbug())
     if (turn_number > 15) : 
-        res = ts.miniMax(hr , 5 , playerId , [0,0,0] , 1 , 1 , 3)
-        print(game.put_one_troop(res[1][0].move[0]) , "-- putting one troop on", res[1][0].move[0])
+        res = ts.miniMax(hr , 4 , playerId , [0,0,0] , 1 , 1 , 3)
+        for mv in res[1] : 
+            if mv.kind==MoveKind.DropSoldier: 
+                print(game.put_one_troop(mv.move[0]) , "-- putting one troop on", mv.move[0])
+                break
+        
     else : 
         res = ts.miniMaxPhase1(hr , 5 , playerId , [0 , 0 , 0] , 1 , 5)
         print(game.put_one_troop(res), "-- putting one troop on", res)
 
+    print()
+    print('timer : ' , time.time() - timer)
+    print()
     # print(game.get_player_id())
     # strategic_nodes = game.get_strategic_nodes()['strategic_nodes']
     # score = game.get_strategic_nodes()['score']
@@ -88,6 +96,9 @@ def initializer(game: ClientGame):
 
 
 def turn(game: ClientGame):
+    timer = time.time()
+    global turn_number
+    turn_number+=1
     teams = game.get_owners()
     numNorms = game.get_number_of_troops()
     numDefs = game.get_number_of_fort_troops()
@@ -101,7 +112,7 @@ def turn(game: ClientGame):
         # print(prx.verts[i].team , prx.verts[i].numNorm , prx.verts[i].numDef)
     hr = HuristicFunction.makeNew(ProxyMap.makeCopy(prx) , playerId)
     print(hr.calculateValue() , hr.viewDataForDbug())
-    res = ts.miniMax(hr , 4 , playerId , [0 , 0 , 0] , 1 , 1 , 3) # optimize needed ...
+    res = ts.miniMax(hr , 5 , playerId , [0 , 0 , 0] , 1 , 1 , 4) # optimize needed ...
     print(res[1])
     
     # drop
@@ -110,8 +121,9 @@ def turn(game: ClientGame):
             mv : Movement
             v = mv.move[0]
             cnt = mv.move[1]
-            game.put_troop(v , cnt)
-            prx.verts[v].numNorm += cnt
+            if cnt > 0 :
+                game.put_troop(v , cnt)
+                prx.verts[v].numNorm += cnt
 
             
     game.next_state()
@@ -151,6 +163,10 @@ def turn(game: ClientGame):
             break
     game.next_state()
     # fort  TODO
+    
+    print()
+    print('timer : ' , time.time() - timer)
+    print()
     # for mv in res[1] :
     #     if mv.kind == MoveKind.Fort :
     #         mv : Movement

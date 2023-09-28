@@ -1,7 +1,7 @@
 {
     "numStrat": 2,
     "connectivity": 10,
-    "totalSafety": 10,
+    "totalSafety": 0,
     "nonDropSoldier": 0.2,
     "currentPoint": 3,
     "nextTurnSoldier": 1,
@@ -15,5 +15,7 @@
     "stratSoldSq" : 0.5 ,
     "riskRate": 2,
     "riskRate2": 4,
-    "riskyFraction": 0.8
+    "riskSimulate1" : 4 , 
+    "riskSimulate2" : 5 , 
+    "riskyFraction": 0.6
 }

@@ -15,17 +15,17 @@ def dfs(v, adj, mark):
     return
 
 
-cnt = 5
-while cnt < 105 :
-    n = random.randint(35, 70)
+cnt = 31
+while cnt < 35 :
+    n = random.randint(35,70)
     L = [0 for i in range(n)]
     for i in range(n):
-        x = random.randint(1, 10)
-        if x <= 7:
+        x = random.randint(1, 100)
+        if x <= 40:
             L[i] = random.randint(1, 3)
-        elif (x <= 9):
+        elif (x <= 60):
             L[i] = random.randint(4, 10)
-        elif (x == 10):
+        elif (x <= 100):
             L[i] = random.randint(11, 15)
     try:
         g = nt.random_degree_sequence_graph(L)
@@ -58,7 +58,7 @@ while cnt < 105 :
     dict["strategic_nodes"] = [0, 1, 2, 3, 4, 5]
     dict["scores_of_strategic_nodes"] = [random.randint(3, 8) for i in range(6)]
 
-    with open("maps2\map" + str(cnt) + ".json", 'w') as f:
+    with open("maps/map" + str(cnt) + ".json", 'w') as f:
         json.dump(dict, f)
     cnt += 1
 

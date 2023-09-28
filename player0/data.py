@@ -1,5 +1,5 @@
 import json , math , time , copy
-
+import player0.main as pm
 
 class Map:
     class Vert:
@@ -454,9 +454,9 @@ class HuristicFunction :
 
     def calculateValue(self):
         value = 0
-        if (self.numStrat > 3) : 
+        if (self.numStrat > 3 and pm.turn_number >= 41) : 
             value+=1000000
-        value += pow(3, self.numStrat) * genomee.data['numStrat']
+        value += (pow(5, self.numStrat) + 15 * self.numStrat) * genomee.data['numStrat']
         value += genomee.data['connectivity'] * self.ci2 / (len(self.vertices) * len(self.vertices) + 1)
         value += self.totalSafety * genomee.data['totalSafety']
         value += self.player.nonDropSoldier * genomee.data['nonDropSoldier']

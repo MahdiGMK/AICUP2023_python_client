@@ -7,12 +7,80 @@
         "min": 1,
         "max": 1
     },
-    "testParam1": {
-        "min": 1,
-        "max": 2
+    "numStrat": {
+        "min": 10,
+        "max": 10
     },
-    "testParam2": {
+    "connectivity": { 
+        "min": 10,
+        "max": 200
+    },
+    "totalSafety": {
         "min": 1,
+        "max": 200
+    },
+    "nonDropSoldier": {
+        "min": 0,
+        "max": 15
+    },
+    "currentPoint": {
+        "min": 1,
+        "max": 200
+    },
+    "nextTurnSoldier": {
+        "min": 1,
+        "max": 50
+    },
+    "soldiers": {
+        "min": 1,
+        "max": 50
+    },
+    "saftyB": {
+        "min": 0.1,
         "max": 5
+    },
+    "saftyBata": {
+        "min": 0.1,
+        "max": 5
+    },
+    "saftyLanda": {
+        "min": 0.1,
+        "max": 5
+    },
+    "saftyMu": {
+        "min": 0.1,
+        "max": 10
+    },
+    "strategicBonus": {
+        "min": 1,
+        "max": 10
+    },
+    "stratSold": {
+        "min": 1,
+        "max": 50
+    },
+    "stratSoldSq": {
+        "min": 1,
+        "max": 500
+    },
+    "riskRate": {
+        "min": 0,
+        "max": 4.99
+    },
+    "riskRate2": {
+        "min": 0,
+        "max": 4.99
+    },
+    "riskSimulate1": {
+        "min": 3,
+        "max": 6.99
+    },
+    "riskSimulate2": {
+        "min": 3,
+        "max": 6.99
+    },
+    "riskyFraction": {
+        "min": 0,
+        "max": 2
     }
 }
