@@ -1,1 +1,78 @@
-{"numStrat": 10, "connectivity": 183.99583960916422, "totalSafety": 153.04731324972283, "nonDropSoldier": 4.094436169050924, "currentPoint": 196.18941879636344, "nextTurnSoldier": 45.36491316289277, "soldiers": 15.728474938490454, "saftyB": 3.9759569453462014, "saftyBata": 4.261956123557771, "saftyLanda": 1.6952371208970507, "saftyMu": 7.2433354073452, "strategicBonus": 2.1044100224229325, "stratSold": 44.97517923465714, "stratSoldSq": 77.48345363057119, "riskRate": 2.0038464103056035, "riskRate2": 1.6968672365402673, "riskSimulate1": 3.2928930255650983, "riskSimulate2": 6.4140646209990795, "riskyFraction": 1.8111610261285764}
+{
+    "numStrat": {
+        "min": 10,
+        "max": 10
+    },
+    "connectivity": {
+        "min": 10,
+        "max": 200
+    },
+    "totalSafety": {
+        "min": 1,
+        "max": 200
+    },
+    "nonDropSoldier": {
+        "min": 0,
+        "max": 15
+    },
+    "currentPoint": {
+        "min": 1,
+        "max": 200
+    },
+    "nextTurnSoldier": {
+        "min": 1,
+        "max": 50
+    },
+    "soldiers": {
+        "min": 1,
+        "max": 50
+    },
+    "saftyB": {
+        "min": 0.1,
+        "max": 5
+    },
+    "saftyBata": {
+        "min": 0.1,
+        "max": 5
+    },
+    "saftyLanda": {
+        "min": 0.1,
+        "max": 5
+    },
+    "saftyMu": {
+        "min": 0.1,
+        "max": 10
+    },
+    "strategicBonus": {
+        "min": 1,
+        "max": 10
+    },
+    "stratSold": {
+        "min": 1,
+        "max": 50
+    },
+    "stratSoldSq": {
+        "min": 1,
+        "max": 500
+    },
+    "riskRate": {
+        "min": 0,
+        "max": 4.99
+    },
+    "riskRate2": {
+        "min": 0,
+        "max": 4.99
+    },
+    "riskSimulate1": {
+        "min": 3,
+        "max": 6.99
+    },
+    "riskSimulate2": {
+        "min": 3,
+        "max": 6.99
+    },
+    "riskyFraction": {
+        "min": 0,
+        "max": 2
+    }
+}

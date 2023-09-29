@@ -30,11 +30,11 @@ attackBeamSearchTime = 0
 def attackBeamSearch(HR0: list[(HuristicFunction, [Movement])], beta: int, depth: int, playerId: int, turn: int):
     global attackBeamSearchTime
     attackBeamSearchTime -= time.time()
-    risk_rate = pd.genomee.data["riskRate"]
-    simulateRate = pd.genomee.data["riskSimulate1"]
+    risk_rate = int(pd.genomee.data["riskRate"])
+    simulateRate = int(pd.genomee.data["riskSimulate1"])
     if turn%3!=1 : 
-        risk_rate = pd.genomee.data["riskRate2"]
-        simulateRate = pd.genomee.data["riskSimulate2"]
+        risk_rate = int(pd.genomee.data["riskRate2"])
+        simulateRate = int(pd.genomee.data["riskSimulate2"])
     Q = [[]]
     for hr in HR0:
         Q[0].append((0, -1, hr[1], hr[0]))

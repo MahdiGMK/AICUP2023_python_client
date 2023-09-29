@@ -68,8 +68,8 @@ class StaticData:
             mlt = 300 / mx
             n *= mlt
             m *= mlt
-            n = int(n)
-            m = int(m)
+            n = max(int(n) , 1)
+            m = max(int(m) , 1)
             x = []
             for st in self.states[n][m]:
                 nowSt = copy.deepcopy(st)
@@ -409,6 +409,9 @@ class HuristicFunction :
                 n = self.proxyMap.verts[u].numNorm
                 m = self.proxyMap.verts[v].numDef + self.proxyMap.verts[v].numNorm
                 simulatedAttack = staticData.getState(n , m)
+                if(len(simulatedAttack) == 0) :
+                    print("WTF")
+                    print(v , u , m , n)
                 self.powELossRemain1[v] += pow2(simulatedAttack[6][0] + m - simulatedAttack[6][1])
             else:
                 self.cntMarzi[v] += 1
