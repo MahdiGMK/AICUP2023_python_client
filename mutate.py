@@ -50,7 +50,10 @@ def mutate(mutation , count) :
             
             if random.random() < mutation :
                 result[p] += random.uniform(-result[p] / 10 , result[p] / 10)
-                
+            
+            if result[p] < parameters[p]['min'] : result[p] = parameters[p]['min']
+            if result[p] > parameters[p]['max'] : result[p] = parameters[p]['max']
+            
         mutatedGenomes.append(result)
     folder_path = 'genomes'
     # for filename in os.listdir(folder_path):
